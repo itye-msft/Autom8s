@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: port-service
+  namespace: ingress
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: port-service
+    spec:
+      containers:
+      - name: port-service
+        image: ityer/k8s-port-service:v8
+        ports:
+        - containerPort: 4000
+        env:
+        - name: LoadBalancerNamespace
+          value: "ingress"
+        - name: PortMin
+          value: "8000"
+        - name: PortMax
+          value: "9999"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: port-service
+  namespace: ingress
+spec:
+  type: ClusterIP
+  ports:
+  - port: 4000
+    protocol: TCP
+  selector:
+    app: port-service           
