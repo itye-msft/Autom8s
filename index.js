@@ -10,7 +10,8 @@ try {
 }
 
 const settings = {
-    LoadBalancerNamespace : process.env.LoadBalancerNamespace || "ingress",
+    LoadBalancerNamespace : process.env.LoadBalancerNamespace || "default",
+    IngressLabel: process.env.IngressLabel || "ingress",
     PortMin: process.env.PortMin || "9000",
     PortMax: process.env.PortMax || "9999"
 }
@@ -30,7 +31,12 @@ app.get('/getport', (request, response, next) => {
       let LoadBalancers = [];
       services.body.items.forEach(service => {
           if(service.spec.type == "LoadBalancer"){
-              LoadBalancers.push(service);
+            //match to label
+            for(var key in service.metadata.labels){
+                if(key == "appingress" && service.metadata.labels[key] == settings.IngressLabel){
+                    LoadBalancers.push(service);
+                }
+            }
           }
       });
 
@@ -76,7 +82,8 @@ app.get('/getport', (request, response, next) => {
                 }
                 response.send({
                     "public_ip": service.status.loadBalancer.ingress[0].ip,
-                    "port": currentPort
+                    "port": currentPort,
+                    "release" : service.spec.selector.release
                 });
           }   
       }

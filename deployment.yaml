@@ -12,16 +12,18 @@ spec:
     spec:
       containers:
       - name: port-service
-        image: ityer/k8s-port-service:v8
+        image: ityer/k8s-port-service:v10
         ports:
         - containerPort: 4000
         env:
         - name: LoadBalancerNamespace
-          value: "ingress"
+          value: "default"
         - name: PortMin
           value: "8000"
         - name: PortMax
           value: "9999"
+        - name: IngressLabel
+          value: "ingress"
 ---
 apiVersion: v1
 kind: Service
