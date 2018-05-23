@@ -18,7 +18,7 @@ const settings = {
     IngressLabel: process.env.IngressLabel || "ingress",
     PortMin: process.env.PortMin || "20000",
     PortMax: process.env.PortMax || "30000",
-    ServingPort: 4000
+    ServingPort: process.env.PortServiceServingPort || 4001
 }
 
 //start serving requests
