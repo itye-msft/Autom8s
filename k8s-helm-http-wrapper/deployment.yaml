@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: web-server-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web-server
+    spec:
+      serviceAccountName: build-robot
+      containers:
+      - name: web-server
+        # replace with actual acr
+        image: XXX.azurecr.io/helmserver:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 30100
+      imagePullSecrets:
+        - name: deployment

@@ -1,0 +1,20 @@
+{
+  "name": "helmhttpserver",
+  "version": "1.0.0",
+  "description": "A NodeJs web server which upon request issue helm commands (install / delete / upgrade)",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+  },
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
