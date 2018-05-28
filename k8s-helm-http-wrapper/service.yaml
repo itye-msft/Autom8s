@@ -8,7 +8,7 @@ spec:
   selector:
     app: web-server
   ports:
-  - port: 30100
+  - port: 4002
     protocol: TCP
     nodePort: 30101
   type: LoadBalancer

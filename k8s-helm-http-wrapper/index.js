@@ -17,7 +17,7 @@ app.use(function (req, res, next) {
     next(err);
 });
 
-app.set('port', 30100); //process.env.PORT);
+app.set('port', process.env.PORT || 4002);
 
 var server = app.listen(app.get('port'), function () {
     console.log('Express server listening on port ' + server.address().port);

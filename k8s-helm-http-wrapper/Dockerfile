@@ -1,7 +1,7 @@
-FROM node:alpine
+FROM ityer/port-service:latest
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /usr/src/helm-server
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -23,6 +23,6 @@ RUN apk add --no-cache ca-certificates bash \
     && wget -q http://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -O - | tar -xzO linux-amd64/helm > /usr/local/bin/helm \
     && chmod +x /usr/local/bin/helm
 
-EXPOSE 30100
+EXPOSE 4002
 
 CMD [ "npm", "start" ]

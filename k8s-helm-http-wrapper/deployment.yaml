@@ -16,6 +16,6 @@ spec:
         image: XXX.azurecr.io/helmserver:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 30100
+        - containerPort: 4002
       imagePullSecrets:
         - name: deployment
