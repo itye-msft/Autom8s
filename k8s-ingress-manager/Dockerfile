@@ -1,7 +1,7 @@
-FROM ityer/k8s-ingress-manager:v2
+FROM ityer/k8s-helm-http-wrapper:v1
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /usr/src/ingress-service
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -15,16 +15,5 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-# port service
-EXPOSE 4001
-
-# helm server 
-EXPOSE 4002
-
-# ingress rules
 EXPOSE 4003
-
-# Sample app
-EXPOSE 4009
-
-CMD [ "node index.js & node ../port-service/index.js & node ../helm-server/index.js & node ../ingress-service/index.js" ]
+CMD [ "npm", "start" ]

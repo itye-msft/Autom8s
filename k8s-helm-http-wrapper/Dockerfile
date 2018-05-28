@@ -1,4 +1,4 @@
-FROM ityer/port-service:latest
+FROM ityer/k8s-port-service:v13
 
 # Create app directory
 WORKDIR /usr/src/helm-server
