@@ -15,7 +15,16 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-EXPOSE 4009
+# port service
 EXPOSE 4001
+
+# helm server 
+EXPOSE 4002
+
+# ingress rules
+# EXPOSE 4003
+
+# Sample app
+EXPOSE 4009
 
 CMD [ "npm", "start" ]
