@@ -11,7 +11,7 @@ This port-service provides http api to find an available port in the given load-
 ## How to use it
 Either edit or run the default `deployment.yaml` file:
 ```
-kubectl apply -f https://raw.githubusercontent.com/itye-msft/k8s-port-service/master/deployment.yaml
+kubectl apply -f https://raw.githubusercontent.com/itye-msft/kubernetes-dynamic-deployment-service/port-service/deployment.yaml
 ```
 This will deploy the port-service into your cluster. Once deployed it can be accessed internally from:
 `http://<port-service-name>.<namespace>.svc.cluster.local/getport`
