@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM ityer/dotnet-node-alpine:net2.1-node9.11-alpine3.7
 
 # Create app directory
 WORKDIR /usr/src/port-service

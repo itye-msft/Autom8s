@@ -12,8 +12,7 @@
   },
   "author": "",
   "license": "MIT",
-  "bugs": {
-  },
+  "bugs": {},
   "dependencies": {
     "express": "^4.16.3"
   }

@@ -30,6 +30,32 @@ app.get('/setrule', (req, res, next) => {
     let serivceName = req.query.servicename;
     let servicePort = req.query.serviceport;
 
+    GetIpPortRelease(req, function (ip, port, release) {
+        //prepare data to post
+        let tcp = 'tcp.' + port;
+        let v = {};
+        v[tcp] = serivceName + ":" + servicePort;
+        let formData = {
+            "chartName": "stable/nginx-ingress",
+            reuseValue: true,
+            "releaseName": release,
+            "values": v
+        }
+
+        // send it to the helm service
+        HttpPost(Paths.HelmUpgrade, formData).then(
+            function (httpResponse) {
+                res.send(httpResponse);
+            }, function (err) {
+                res.send(err);
+            })
+    });
+
+
+
+
+});
+function GetIpPortRelease(req, callback) {
     let port = ip = release = '';
     //if specific port/ip/release were requested:
     if (req.query.specificport != undefined && req.query.specificport != "" &&
@@ -38,40 +64,60 @@ app.get('/setrule', (req, res, next) => {
         ip = req.query.specificlb;
         port = req.query.specificport;
         release = req.query.specificrelease;
+
+        callback(ip, port, release);
     }
     else {
         //get free port/ip/release
-        request(Paths.GetPort, function (error, response, body) {
-            ip = body.public_ip;
-            port = body.port;
-            release = body.release;
-        });
+        HttpGet(Paths.GetPort).then(function (portData) {
+            let data = JSON.parse(portData);
+            ip = data.public_ip;
+            port = data.port;
+            release = data.release;
+            callback(ip, port, release);
+        })
     }
+}
+function HttpGet(url) {
+    const options = {
+        url: url,
+        method: 'GET',
+    };
 
-    //prepare data to post
-    let tcp = 'tcp.' + port;
-    let formData = {
-        "chartName": "stable/nginx-ingress",
-        "releaseName": release,
-        "values": {
-            tcp: serivceName + ":" + servicePort
-        }
-    }
+    return AsyncRequest(options);
+}
+function HttpPost(url, form) {
+    const options = {
+        url: url,
+        method: 'POST',
+        body: form,
+        json:true
+    };
 
-    // send it to the helm service
-    request.post({ url: Paths.HelmUpgrade, form: formData }, function (error, response, body) {
-        if (error) {
-            res.send({ 'error': error });
-        }
-        else {
-            res.send(
-                {
-                    internal_port: servicePort,
-                    external_port: port,
-                    external_ip: ip,
-                    ingressResponse: body
+    return AsyncRequest(options);
+}
+
+function AsyncRequest(options) {
+    // Return new promise 
+    return new Promise(function (resolve, reject) {
+        // Do async job
+        if (options.method == "GET") {
+            request.get(options, function (err, resp, body) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(body);
                 }
-            );
+            })
         }
-    });
-})
+        if (options.method == "POST") {
+            request.post(options, function (err, resp, body) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(body);
+                }
+            })
+        }
+    })
+}

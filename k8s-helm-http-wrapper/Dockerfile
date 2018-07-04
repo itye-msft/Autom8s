@@ -1,4 +1,4 @@
-FROM ityer/k8s-port-service:v13
+FROM ityer/k8s-port-service:v14
 
 # Create app directory
 WORKDIR /usr/src/helm-server
@@ -17,12 +17,17 @@ COPY . .
 ENV KUBE_LATEST_VERSION="v1.10.2" 
 # Note: Latest version of helm may be found at: # https://github.com/kubernetes/helm/releases 
 ENV HELM_VERSION="v2.9.1" 
+ENV HELM_HOME="/usr/local/bin/"
+ENV HELM_BINARY="/usr/local/bin/helm"
+RUN mkdir /usr/local/bin/plugins
 RUN apk add --no-cache ca-certificates bash \
     && wget -q https://storage.googleapis.com/kubernetes-release/release/${KUBE_LATEST_VERSION}/bin/linux/amd64/kubectl -O /usr/local/bin/kubectl \
     && chmod +x /usr/local/bin/kubectl \
     && wget -q http://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -O - | tar -xzO linux-amd64/helm > /usr/local/bin/helm \
     && chmod +x /usr/local/bin/helm
-
+RUN apk update && apk upgrade && \
+    apk add --no-cache bash git openssh
+RUN helm plugin install https://github.com/itye-msft/helm-json-plugin --version master
 EXPOSE 4002
 
 CMD [ "npm", "start" ]

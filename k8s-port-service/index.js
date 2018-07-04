@@ -15,7 +15,7 @@ try {
 //gather settings to operate
 const settings = {
     LoadBalancerNamespace: process.env.LoadBalancerNamespace || "default",
-    IngressLabel: process.env.IngressLabel || "ingress",
+    IngressLabel: process.env.IngressLabel || "",
     PortMin: process.env.PortMin || "20000",
     PortMax: process.env.PortMax || "30000",
     ServingPort: process.env.PortServiceServingPort || 4001

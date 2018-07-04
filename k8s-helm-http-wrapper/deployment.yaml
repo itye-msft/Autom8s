@@ -13,9 +13,9 @@ spec:
       containers:
       - name: web-server
         # replace with actual acr
-        image: XXX.azurecr.io/helmserver:latest
+        image: ityer/k8s-helm-http-wrapper:v3
         imagePullPolicy: Always
         ports:
         - containerPort: 4002
       imagePullSecrets:
-        - name: deployment
+        - name: deployment        

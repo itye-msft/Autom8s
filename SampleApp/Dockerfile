@@ -27,4 +27,4 @@ EXPOSE 4003
 # Sample app
 EXPOSE 4009
 
-CMD [ "node index.js & node ../port-service/index.js & node ../helm-server/index.js & node ../ingress-service/index.js" ]
+CMD [ "npm", "start" ]

@@ -1,3 +1,7 @@
+docker build -t dotnet-node-alpine .\docker-dotnet-node-alpine
+docker tag dotnet-node-alpine ityer/dotnet-node-alpine:net2.1-node9.11-alpine3.7
+docker push ityer/dotnet-node-alpine:net2.1-node9.11-alpine3.7
+
 docker build -t k8s-port-service .\k8s-port-service
 docker tag k8s-port-service ityer/k8s-port-service:v13
 docker push ityer/k8s-port-service:v13
