@@ -1,6 +1,7 @@
 var express = require('express')
 const Client = require('kubernetes-client').Client
 const config = require('kubernetes-client').config;
+var router = express.Router();
 
 //setup an API client
 let client;
@@ -17,22 +18,14 @@ const settings = {
     LoadBalancerNamespace: process.env.LoadBalancerNamespace || "default",
     IngressLabel: process.env.IngressLabel || "",
     PortMin: process.env.PortMin || "20000",
-    PortMax: process.env.PortMax || "30000",
-    ServingPort: process.env.PortServiceServingPort || 4001
+    PortMax: process.env.PortMax || "30000"
 }
 
-//start serving requests
-var app = express()
-app.listen(settings.ServingPort, function () {
-    console.log('Listening on port ' + settings.ServingPort);
-})
-
-
-app.get('/', function (req, res) {
+router.get('/', function (req, res) {
     res.send('Service is running');
 });
 
-app.get('/getexistingports', (request, response, next) => {
+router.get('/getexistingports', (request, response, next) => {
     client.api.v1.namespaces(settings.LoadBalancerNamespace).services.get()
         .then(function (services) {
             //select only load balancers
@@ -43,8 +36,7 @@ app.get('/getexistingports', (request, response, next) => {
         .catch(next);
 })
 
-app.get('/getport', (request, response, next) => {
-
+router.get('/getport', (request, response, next) => {
     //make an API call for all services in the given namespace
     client.api.v1.namespaces(settings.LoadBalancerNamespace).services.get()
         .then(function (services) {
@@ -159,3 +151,4 @@ function listPorts(LoadBalancers){
     });
     return list;
 }
+module.exports = router;

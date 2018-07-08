@@ -12,9 +12,18 @@ spec:
       serviceAccountName: web-account
       containers:
       - name: web-server
-        image: ityer/k8s-helm-http-wrapper:v3
+        image: eladiwmicrosoft/helm-as-a-service:v1
         imagePullPolicy: Always
         ports:
         - containerPort: 4002
+        env:
+        - name: LoadBalancerNamespace
+          value: "ingress"
+        - name: PortMin
+          value: "20000"
+        - name: PortMax
+          value: "30000"
+        - name: IngressLabel
+          value: "ingress"
       imagePullSecrets:
         - name: deployment        

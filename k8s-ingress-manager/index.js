@@ -1,31 +1,13 @@
 var express = require('express')
 var request = require('request');
-
-
-//gather settings to operate
-const settings = {
-    PortServiceServicePort: process.env.PortServiceServicePort || 4001,
-    HelmServicePort: process.env.HelmServicePort || 4002,
-    ServingPort: process.env.IngressServingPort || 4003
-}
+var router = express.Router();
 
 const Paths = {
-    GetPort: 'http://localhost:' + settings.PortServiceServicePort + '/getport',
-    HelmUpgrade: 'http://localhost:' + settings.HelmServicePort + '/upgrade'
+    GetPort: 'http://localhost:4000/getport',
+    HelmUpgrade: 'http://localhost:4000/upgrade'
 }
 
-//start serving requests
-var app = express()
-app.listen(settings.ServingPort, function () {
-    console.log('Ingress Service is listening on port ' + settings.ServingPort);
-})
-
-
-app.get('/', function (req, res) {
-    res.send('Ingress Service is running');
-});
-
-app.get('/setrule', (req, res, next) => {
+router.get('/setrule', (req, res, next) => {
     //init params
     let serivceName = req.query.servicename;
     let servicePort = req.query.serviceport;
@@ -50,11 +32,8 @@ app.get('/setrule', (req, res, next) => {
                 res.send(err);
             })
     });
-
-
-
-
 });
+
 function GetIpPortRelease(req, callback) {
     let port = ip = release = '';
     //if specific port/ip/release were requested:
@@ -78,6 +57,7 @@ function GetIpPortRelease(req, callback) {
         })
     }
 }
+
 function HttpGet(url) {
     const options = {
         url: url,
@@ -86,6 +66,7 @@ function HttpGet(url) {
 
     return AsyncRequest(options);
 }
+
 function HttpPost(url, form) {
     const options = {
         url: url,
@@ -121,3 +102,4 @@ function AsyncRequest(options) {
         }
     })
 }
+module.exports = router;
