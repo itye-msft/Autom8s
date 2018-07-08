@@ -7,7 +7,7 @@ const helmBinaryLocation = process.env.HELM_BINARY;
 
 var router = express.Router();
 
-exec(helmBinaryLocation + ' init');
+exec(helmBinaryLocation + ' init --service-account tiller');
 
 async function executeHelm(command, values = '') {
     const { stdout, stderr } = await exec(helmBinaryLocation + ' ' + command + values);

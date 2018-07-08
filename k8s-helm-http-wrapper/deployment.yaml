@@ -9,10 +9,9 @@ spec:
       labels:
         app: web-server
     spec:
-      serviceAccountName: build-robot
+      serviceAccountName: web-account
       containers:
       - name: web-server
-        # replace with actual acr
         image: ityer/k8s-helm-http-wrapper:v3
         imagePullPolicy: Always
         ports:
