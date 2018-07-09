@@ -12,7 +12,7 @@ spec:
       serviceAccountName: web-account
       containers:
       - name: web-server
-        image: ityer/k8s-helm-http-wrapper:v3
+        image: ityer/k8s-helm-http-wrapper:v4
         imagePullPolicy: Always
         ports:
         - containerPort: 4002
