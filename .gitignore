@@ -64,4 +64,4 @@ docker-dotnet-node-alpine
 docker-dotnet-node-alpine/*
 build.ps1
 k8s-helm-http-wrapper/deployment.yaml
-build.ps1
+*.ps1
