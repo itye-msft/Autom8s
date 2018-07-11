@@ -60,8 +60,9 @@ typings/
 # next.js build output
 .next
 
-docker-dotnet-node-alpine
+docker-dotnet-node-alpine/
 docker-dotnet-node-alpine/*
-build.ps1
-k8s-helm-http-wrapper/deployment.yaml
-*.ps1
+.ps1
+.vscode/
+.vscode/launch.json
+k8s-helm-http-wrapper/README.md
