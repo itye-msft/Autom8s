@@ -33,7 +33,7 @@ Example: installing RabbitMQ
 ```
 http post [ip-of-autom8s-service]:4000/install
 {
-  "chartName":"stable/nginx-rabbitmq"
+  "chartName":"stable/rabbitmq"
 }
 ```
 
