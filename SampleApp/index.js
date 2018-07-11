@@ -1,49 +1,43 @@
 var express = require('express')
 var request = require('request');
+var express = require('express');
 
+var router = express.Router();
 
-//gather settings to operate
-const settings = {
-    PortServiceServicePort: process.env.PortServiceServicePort || 4001,
-    PortServiceServicePort: process.env.PortServiceServicePort || 4002,
-    PortServiceServicePort: process.env.PortServiceServicePort || 4003,
-    ServingPort: process.env.AppServingPort || 4009
-}
+router.get('/test',
+    async (req, res) => {
+        let chart ={ name: "stable/rabbitmq", internalPort: 5672};
+        InstallChart(chart, function(response){
+            res.send(response);
+        });
+    });
 
 const Paths = {
-    GetPort:'http://localhost:4001/getport',
-    HelmInstall:'http://localhost:4002/install',
-    HelmDelete:'http://localhost:4002/delete',
-    SetIngressRule:'http://localhost:4003/setrule'
+    GetPort:'http://localhost:4000/getport',
+    HelmInstall:'http://localhost:4000/install',
+    HelmDelete:'http://localhost:4000/delete',
+    SetIngressRule:'http://localhost:4000/setrule'
 }
 
-//start serving requests
-var app = express()
-app.listen(settings.ServingPort, function () {
-    console.log('Listening on port ' + settings.ServingPort);
-})
-
-
-app.get('/', function (req, res) {
-    res.send('Service is running');
-});
-
-app.get('/test', (req, res, next) => {
-    request(Paths.GetPort , function (error, response, body) {
-        res.send(body);
-    });
-})
-
-function InstallChart(chartName){
-    request.post(Paths.HelmInstall,{chartName:"stable/grafana", releaseName:"my-release"},function(error, response, body){
-        let install = body;
-        if(install.information && install.information=="success"){
-            request(Paths.GetPort , function (error, response, body) {
-                var ipport = body;
-                request(Path.SetIngressRule,{servicename:install.serviceName, serviceport:80},function (error, response, body) {
-
+function InstallChart(chart, callback){
+    request.post(Paths.HelmInstall,{form:{chartName:chart.name}},function(error, response, installResponse){
+        installResponse = JSON.parse(installResponse);
+        if(installResponse.information && installResponse.information=="success"){
+            request(Paths.GetPort , function (error, response, portResponse) {
+                request(Paths.SetIngressRule,{serviceName:installResponse.serviceName, servicePort:chart.internalPort},function (error, response, ingressResponse) {
+                    ingressResponse = JSON.parse(ingressResponse);
+                    if(ingressResponse.information == "success"){
+                        callback( "Your new service: "+ ingressResponse.releaseName + ", is publicly accessibly on " + ingressResponse.ip + ":" + ingressResponse.port);
+                    }
+                    else{
+                        callback("failed");
+                    }
                 })
             });
         }
+        else
+            callback("failed");
     });
 }
+
+module.exports = router;
