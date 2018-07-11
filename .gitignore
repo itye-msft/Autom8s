@@ -62,3 +62,4 @@ typings/
 
 docker-dotnet-node-alpine
 docker-dotnet-node-alpine/*
+build.ps1
