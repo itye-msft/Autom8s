@@ -1,0 +1,138 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard
+  labels:
+    k8s-app: kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: kubernetes-dashboard
+  namespace: kube-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: helm
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: tiller-user
+  namespace: kube-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods/portforward
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: tiller-user-binding
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tiller-user
+subjects:
+- kind: ServiceAccount
+  name: helm
+  namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: web-account
+  namespace: default
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tiller
+  namespace: kube-system
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: tiller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: tiller
+    namespace: kube-system  
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: web-account
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: web-account
+    namespace: default  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: autom8s
+  labels:
+    app: autom8s
+spec:
+  selector:
+    app: autom8s
+  ports:
+  - port: 4000
+    protocol: TCP
+    nodePort: 30101
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: autom8s-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: autom8s
+    spec:
+      serviceAccountName: web-account
+      containers:
+      - name: autom8s
+        image: ityer/autom8s
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4002
+        env:
+        - name: LoadBalancerNamespace
+          value: "default"
+        - name: PortMin
+          value: "20000"
+        - name: PortMax
+          value: "30000"
+        - name: IngressLabel
+          value: "ingress"
+      imagePullSecrets:
+        - name: deployment        

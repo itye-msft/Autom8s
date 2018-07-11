@@ -7,8 +7,13 @@ docker tag k8s-port-service ityer/k8s-port-service:v14
 docker push ityer/k8s-port-service:v14
 
 docker build -t k8s-helm-http-wrapper .\k8s-helm-http-wrapper
+<<<<<<< HEAD
 docker tag k8s-helm-http-wrapper ityer/k8s-helm-http-wrapper:v3
 docker push ityer/k8s-helm-http-wrapper:v3
+=======
+docker tag k8s-helm-http-wrapper ityer/k8s-helm-http-wrapper:v4
+docker push ityer/k8s-helm-http-wrapper:v4
+>>>>>>> mergeAll
 
 docker build -t k8s-ingress-manager .\k8s-ingress-manager
 docker tag k8s-ingress-manager ityer/k8s-ingress-manager:v2
@@ -18,3 +23,6 @@ docker build -t k8s-deploy-service-sample .\SampleApp
 docker tag k8s-deploy-service-sample ityer/k8s-deploy-service-sample:v3
 docker push ityer/k8s-deploy-service-sample:v3
 
+docker build -t autom8s .
+docker tag autom8s ityer/autom8s
+docker push ityer/autom8s
