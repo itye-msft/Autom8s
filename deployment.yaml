@@ -95,12 +95,12 @@ subjects:
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-server
+  name: autom8s
   labels:
-    app: web-server
+    app: autom8s
 spec:
   selector:
-    app: web-server
+    app: autom8s
   ports:
   - port: 4000
     protocol: TCP
@@ -110,24 +110,24 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: web-server-deployment
+  name: autom8s-deployment
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: web-server
+        app: autom8s
     spec:
       serviceAccountName: web-account
       containers:
-      - name: web-server
-        image: eladiwmicrosoft/helm-as-a-service:v1
+      - name: autom8s
+        image: ityer/autom8s
         imagePullPolicy: Always
         ports:
         - containerPort: 4002
         env:
         - name: LoadBalancerNamespace
-          value: "ingress"
+          value: "default"
         - name: PortMin
           value: "20000"
         - name: PortMax
