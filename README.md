@@ -29,6 +29,14 @@ Once installed you can make direct calls to the API:
 * Helm delete: `http://[ip-of-autom8s-service]:4000/delete`
 * Helm upgrade: `http://[ip-of-autom8s-service]:4000/upgrade`
 
+Example: installing RabbitMQ
+```
+http post [ip-of-autom8s-service]:4000/install
+{
+  "chartName":"stable/nginx-rabbitmq"
+}
+```
+
 If you are interested in more granular functionality:
 * Ip-Manager: `http://[ip-of-autom8s-service]:4000/getport`
 * Ingress-Manager: `http://[ip-of-autom8s-service]:4000/setrule`
