@@ -18,3 +18,6 @@ docker build -t k8s-deploy-service-sample .\SampleApp
 docker tag k8s-deploy-service-sample ityer/k8s-deploy-service-sample:v3
 docker push ityer/k8s-deploy-service-sample:v3
 
+docker build -t autom8s .
+docker tag autom8s ityer/autom8s
+docker push ityer/autom8s
