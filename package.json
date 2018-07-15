@@ -1,7 +1,7 @@
 {
-  "name": "helm-as-a-service",
+  "name": "autom8s",
   "version": "1.0.0",
-  "description": "The sample app provides a template which can perform the following:",
+  "description": "Project Autom8s - Automation for K8S. Dynamically deploy applications to kubernetes cluster and expose them externally",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,14 +9,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/itye-msft/kubernetes-dynamic-deployment-service.git"
+    "url": "git+https://github.com/itye-msft/Autom8s.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Microsoft",
+  "contributors": [
+    "itye-msft","eladiw"
+  ],
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/itye-msft/kubernetes-dynamic-deployment-service/issues"
+    "url": "https://github.com/itye-msft/Autom8s/issues"
   },
-  "homepage": "https://github.com/itye-msft/kubernetes-dynamic-deployment-service#readme",
+  "homepage": "https://github.com/itye-msft/Autom8s",
   "dependencies": {
     "body-parser": "^1.18.3",
     "child_process": "^1.0.2",
