@@ -10,12 +10,12 @@ class PortService {
         let client;
         try {
             //assuming we are in the pod, try get the credentials from account service
-            client = new Client({ config: config.getInCluster(), version: '1.9' });
+            client = new Client({ config: config.getInCluster() });
         } catch (e) {
             //we must be debugging locally, than pickup credentials from kube config
-            client = new Client({ config: config.fromKubeconfig(), version: '1.9' });
+            client = new Client({ config: config.fromKubeconfig() });
         }
-
+        this.specLoaded = false;
         this.client = client;
         
         //gather settings to operate
@@ -27,7 +27,11 @@ class PortService {
         }
     }
 
-    getExistingPorts() {
+    async getExistingPorts() {
+        if(!this.specLoaded){
+            await this.client.loadSpec();
+            this.specLoaded = true;
+        }
         var self = this;
         return this.client.api.v1.namespaces(this.settings.LoadBalancerNamespace).services.get()
             .then(function (services) {
@@ -38,7 +42,11 @@ class PortService {
             });
     }
 
-    getPort(lbip) {
+    async getPort(lbip) {
+        if(!this.specLoaded){
+            await this.client.loadSpec();
+            this.specLoaded = true;
+        }
         //make an API call for all services in the given namespace
         var self = this;
         return this.client.api.v1.namespaces(this.settings.LoadBalancerNamespace).services.get()
