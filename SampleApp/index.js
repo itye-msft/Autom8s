@@ -1,42 +1,45 @@
-var express = require('express')
+var express = require('express');
+const util = require('util');
 var request = require('request');
+const requestPostAsync = util.promisify(request.post);
+const requestGetAsync = util.promisify(request.get);
 
 var router = express.Router();
+var autom8sUrl = "localhost";
+const Paths = {
+    HelmInstall: 'http://' + autom8sUrl + ':4000/install',
+    SetIngressRule: 'http://' + autom8sUrl + ':4000/setrule'
+}
 
 router.get('/test',
     async (req, res) => {
-        let chart ={ name: "stable/rabbitmq", internalPort: 5672};
-        InstallChart(chart, function(response){
-            res.send(response);
-        });
+        let chart = { name: "stable/rabbitmq", servicePort: 5672 };
+        var installChartResult = await InstallChart(chart);
+        res.send(installChartResult);
     });
 
-const Paths = {
-    GetPort:'http://localhost:4000/getport',
-    HelmInstall:'http://localhost:4000/install',
-    HelmDelete:'http://localhost:4000/delete',
-    SetIngressRule:'http://localhost:4000/setrule'
-}
 
-function InstallChart(chart, callback){
-    request.post(Paths.HelmInstall,{form:{chartName:chart.name}},function(error, response, installResponse){
+
+async function InstallChart(chart) {
+    try {
+        // perform helm install
+        var installResponse = await requestPostAsync(Paths.HelmInstall, { form: { chartName: chart.name } });
         installResponse = JSON.parse(installResponse);
-        if(installResponse.information && installResponse.information=="success"){
-            request(Paths.GetPort , function (error, response, portResponse) {
-                request(Paths.SetIngressRule,{serviceName:installResponse.serviceName, servicePort:chart.internalPort},function (error, response, ingressResponse) {
-                    ingressResponse = JSON.parse(ingressResponse);
-                    if(ingressResponse.information == "success"){
-                        callback( "Your new service: "+ ingressResponse.releaseName + ", is publicly accessibly on " + ingressResponse.ip + ":" + ingressResponse.port);
-                    }
-                    else{
-                        callback("failed");
-                    }
-                })
-            });
+
+        // create a rule to expose the new service expternally
+        var ingressResponse = await requestGetAsync(Paths.SetIngressRule, { serviceName: installResponse.serviceName, servicePort: chart.servicePort });
+        ingressResponse = JSON.parse(ingressResponse);
+
+        if (ingressResponse.information == "success") {
+            return "Your new service: " + ingressResponse.releaseName + ", is publicly accessibly on " + ingressResponse.ip + ":" + ingressResponse.port;
         }
-        else
-            callback("failed");
-    });
+        else {
+            return "failed";
+        }
+    }
+    catch (error) {
+        return "failed";
+    }
 }
 
 module.exports = router;
