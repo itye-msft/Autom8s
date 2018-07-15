@@ -1,13 +1,14 @@
 ﻿'use strict';
 const HelmWrapper = require("./helm-wrapper");
 var express = require('express');
-
 var router = express.Router();
+var helmWrapper = new HelmWrapper();
+
+helmWrapper.init();
 
 // Installs the requested chart
 router.post('/install',
     async (req, res) => {
-        let helmWrapper = new HelmWrapper();
         const deployOptions = req.body;
 
         await helmWrapper.install(deployOptions)

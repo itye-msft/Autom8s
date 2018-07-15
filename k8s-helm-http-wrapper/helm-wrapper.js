@@ -2,14 +2,27 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-
 class HelmWrapper {
+    
     constructor() {
+        this.initialized = false;
         this.helmBinaryLocation = process.env.HELM_BINARY;
-        exec(this.helmBinaryLocation + ' init --service-account tiller');
+    }
+
+    async init() {
+      if (this.initialized == true) {
+        return;
+      }
+      
+      await exec(this.helmBinaryLocation + ' init --service-account tiller');
+      this.initialized = true;
     }
 
     async install(deployOptions) {
+        if (this.initialized == false) {
+          throw new Error("Object not initialized");
+        }
+
         let chartName = deployOptions.chartName.toLowerCase();
         let releaseName = deployOptions.releaseName;
         let installCommand = 'json install ' + chartName;
@@ -44,12 +57,19 @@ class HelmWrapper {
     }
 
     async delete(delOptions) {
+        if (this.initialized == false) {
+          throw new Error("Object not initialized");
+        }
+        
         let releaseName = delOptions.releaseName;
-
         return await this._executeHelm('delete ' + releaseName);
     }
 
     async upgrade(deployOptions) {
+        if (this.initialized == false) {
+          throw new Error("Object not initialized");
+        }
+        
         let chartName = deployOptions.chartName.toLowerCase();
         let releaseName = deployOptions.releaseName.toLowerCase();
         let upgradeCommand = 'upgrade ' + releaseName + ' ' + chartName;
@@ -58,6 +78,10 @@ class HelmWrapper {
     }
 
     async _executeHelm(command, values = '') {
+        if (this.initialized == false) {
+          throw new Error("Object not initialized");
+        }
+
         const { stdout, stderr } = await exec(this.helmBinaryLocation + ' ' + command + values);
         console.log('stdout:', stdout);
         console.log('stderr:', stderr);
@@ -79,6 +103,9 @@ class HelmWrapper {
     }
 
     async _innerInstallUpgrade(command, deployOptions) {
+        if (this.initialized == false) {
+          throw new Error("Object not initialized");
+        }
 
         let chartName = deployOptions.chartName.toLowerCase();
 

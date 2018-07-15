@@ -18,6 +18,7 @@ kind: ServiceAccount
 metadata:
   name: helm
   namespace: default
+automountServiceAccountToken: true
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
@@ -37,6 +38,17 @@ rules:
   - pods
   verbs:
   - list
+- apiGroups: ["extensions", "apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - list
+  - get  
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
@@ -51,13 +63,6 @@ subjects:
 - kind: ServiceAccount
   name: helm
   namespace: default
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: web-account
-  namespace: default
-automountServiceAccountToken: true
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -77,20 +82,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: tiller
-    namespace: kube-system  
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: web-account
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-  - kind: ServiceAccount
-    name: web-account
-    namespace: default  
+    namespace: kube-system
 ---
 apiVersion: v1
 kind: Service
@@ -118,7 +110,7 @@ spec:
       labels:
         app: autom8s
     spec:
-      serviceAccountName: web-account
+      serviceAccountName: helm
       containers:
       - name: autom8s
         image: ityer/autom8s
@@ -135,4 +127,4 @@ spec:
         - name: IngressLabel
           value: "ingress"
       imagePullSecrets:
-        - name: deployment        
+        - name: deployment      
