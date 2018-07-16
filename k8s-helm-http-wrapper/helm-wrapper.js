@@ -2,20 +2,21 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
+var helmBinaryLocation = process.env.HELM_BINARY;
+console.log('Initializing tiller with service account: ' + process.env.TILLER_SERVICE_ACCOUNT);
+exec(helmBinaryLocation + ' init --service-account ' + process.env.TILLER_SERVICE_ACCOUNT);
 
 class HelmWrapper {
-    constructor() {
-        this.helmBinaryLocation = process.env.HELM_BINARY;
-        exec(this.helmBinaryLocation + ' init --service-account tiller');
-    }
 
     async install(deployOptions) {
+        console.log('Installing new chart. deployOptions:' + deployOptions);
         let chartName = deployOptions.chartName.toLowerCase();
         let releaseName = deployOptions.releaseName;
         let installCommand = 'json install ' + chartName;
 
         if (releaseName != undefined && releaseName != null && releaseName != "") {
             installCommand = installCommand + ' --name ' + releaseName.toLowerCase();
+            console.log('Install command: ' + installCommand);
         }
         var self = this;
         return await this._innerInstallUpgrade(installCommand, deployOptions)
@@ -45,6 +46,7 @@ class HelmWrapper {
 
     async delete(delOptions) {
         let releaseName = delOptions.releaseName;
+        console.log('deleting release: ' + releaseName);
 
         return await this._executeHelm('delete ' + releaseName);
     }
@@ -53,12 +55,13 @@ class HelmWrapper {
         let chartName = deployOptions.chartName.toLowerCase();
         let releaseName = deployOptions.releaseName.toLowerCase();
         let upgradeCommand = 'upgrade ' + releaseName + ' ' + chartName;
+        console.log('upgradeCommand command: ' + upgradeCommand);
 
         return await this._innerInstallUpgrade(upgradeCommand, deployOptions);
     }
 
     async _executeHelm(command, values = '') {
-        const { stdout, stderr } = await exec(this.helmBinaryLocation + ' ' + command + values);
+        const { stdout, stderr } = await exec(helmBinaryLocation + ' ' + command + values);
         console.log('stdout:', stdout);
         console.log('stderr:', stderr);
         return { error:stderr, json:stdout };
@@ -79,7 +82,6 @@ class HelmWrapper {
     }
 
     async _innerInstallUpgrade(command, deployOptions) {
-
         let chartName = deployOptions.chartName.toLowerCase();
 
         if (deployOptions.privateChartsRepo) {

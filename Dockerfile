@@ -1,22 +1,7 @@
 ## Port service 
 FROM ityer/dotnet-node-alpine:net2.1-node9.11-alpine3.7
 
-# Create app directory
-WORKDIR /usr/src
-
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
-
-RUN npm install
-# If you are building your code for production
-# RUN npm install --only=production
-
-# Bundle app source
-COPY . .
-
-## Helm
+## Install Helm
 
 # Note: Latest version of kubectl may be found at: # https://aur.archlinux.org/packages/kubectl-bin/ 
 ENV KUBE_LATEST_VERSION="v1.10.2" 
@@ -33,6 +18,19 @@ RUN apk add --no-cache ca-certificates bash \
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh
 RUN helm plugin install https://github.com/itye-msft/helm-json-plugin --version master
+
+# Create app directory
+WORKDIR /usr/src
+
+# Install app dependencies
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# where available (npm@5+)
+COPY package*.json ./
+
+RUN npm install
+
+# Bundle app source
+COPY . .
 
 EXPOSE 4000
 CMD [ "npm", "start" ]
