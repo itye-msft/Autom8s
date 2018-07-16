@@ -126,5 +126,7 @@ spec:
           value: "30000"
         - name: IngressLabel
           value: "ingress"
+        - name: TILLER_SERVICE_ACCOUNT
+          value: "tiller"
       imagePullSecrets:
         - name: deployment      

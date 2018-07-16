@@ -4,8 +4,6 @@ var express = require('express');
 var router = express.Router();
 var helmWrapper = new HelmWrapper();
 
-helmWrapper.init();
-
 // Installs the requested chart
 router.post('/install',
     async (req, res) => {

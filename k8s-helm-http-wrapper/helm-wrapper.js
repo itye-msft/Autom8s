@@ -2,33 +2,21 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-class HelmWrapper {
-    
-    constructor() {
-        this.initialized = false;
-        this.helmBinaryLocation = process.env.HELM_BINARY;
-    }
+var helmBinaryLocation = process.env.HELM_BINARY;
+console.log('Initializing tiller with service account: ' + process.env.TILLER_SERVICE_ACCOUNT);
+exec(helmBinaryLocation + ' init --service-account ' + process.env.TILLER_SERVICE_ACCOUNT);
 
-    async init() {
-      if (this.initialized == true) {
-        return;
-      }
-      
-      await exec(this.helmBinaryLocation + ' init --service-account tiller');
-      this.initialized = true;
-    }
+class HelmWrapper {
 
     async install(deployOptions) {
-        if (this.initialized == false) {
-          throw new Error("Object not initialized");
-        }
-
+        console.log('Installing new chart. deployOptions:' + deployOptions);
         let chartName = deployOptions.chartName.toLowerCase();
         let releaseName = deployOptions.releaseName;
         let installCommand = 'json install ' + chartName;
 
         if (releaseName != undefined && releaseName != null && releaseName != "") {
             installCommand = installCommand + ' --name ' + releaseName.toLowerCase();
+            console.log('Install command: ' + installCommand);
         }
         var self = this;
         return await this._innerInstallUpgrade(installCommand, deployOptions)
@@ -57,32 +45,23 @@ class HelmWrapper {
     }
 
     async delete(delOptions) {
-        if (this.initialized == false) {
-          throw new Error("Object not initialized");
-        }
-        
         let releaseName = delOptions.releaseName;
+        console.log('deleting release: ' + releaseName);
+
         return await this._executeHelm('delete ' + releaseName);
     }
 
     async upgrade(deployOptions) {
-        if (this.initialized == false) {
-          throw new Error("Object not initialized");
-        }
-        
         let chartName = deployOptions.chartName.toLowerCase();
         let releaseName = deployOptions.releaseName.toLowerCase();
         let upgradeCommand = 'upgrade ' + releaseName + ' ' + chartName;
+        console.log('upgradeCommand command: ' + upgradeCommand);
 
         return await this._innerInstallUpgrade(upgradeCommand, deployOptions);
     }
 
     async _executeHelm(command, values = '') {
-        if (this.initialized == false) {
-          throw new Error("Object not initialized");
-        }
-
-        const { stdout, stderr } = await exec(this.helmBinaryLocation + ' ' + command + values);
+        const { stdout, stderr } = await exec(helmBinaryLocation + ' ' + command + values);
         console.log('stdout:', stdout);
         console.log('stderr:', stderr);
         return { error:stderr, json:stdout };
@@ -103,10 +82,6 @@ class HelmWrapper {
     }
 
     async _innerInstallUpgrade(command, deployOptions) {
-        if (this.initialized == false) {
-          throw new Error("Object not initialized");
-        }
-
         let chartName = deployOptions.chartName.toLowerCase();
 
         if (deployOptions.privateChartsRepo) {
