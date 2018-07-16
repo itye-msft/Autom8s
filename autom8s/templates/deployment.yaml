@@ -65,68 +65,64 @@ subjects:
   namespace: default
 ---
 apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: tiller
-  namespace: kube-system
-automountServiceAccountToken: true
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: tiller
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-  - kind: ServiceAccount
-    name: tiller
-    namespace: kube-system
----
-apiVersion: v1
 kind: Service
 metadata:
-  name: autom8s
+  name: {{ template "autom8s.fullname" . }}
   labels:
-    app: autom8s
+    app: {{ template "autom8s.name" . }}
+    chart: {{ template "autom8s.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
-  selector:
-    app: autom8s
+  type: {{ .Values.service.type }}
   ports:
-  - port: 4000
-    protocol: TCP
-    nodePort: 30101
-  type: LoadBalancer
+    - port: {{ .Values.service.port }}
+      nodePort: 30101
+      protocol: TCP
+  selector:
+    app: {{ template "autom8s.name" . }}
+    release: {{ .Release.Name }}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: autom8s-deployment
+  name: {{ template "autom8s.fullname" . }}
+  labels:
+    app: {{ template "autom8s.name" . }}
+    chart: {{ template "autom8s.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "autom8s.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: autom8s
+        app: {{ template "autom8s.name" . }}
+        release: {{ .Release.Name }}
     spec:
       serviceAccountName: helm
       containers:
-      - name: autom8s
-        image: ityer/autom8s
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 4002
-        env:
-        - name: LoadBalancerNamespace
-          value: "default"
-        - name: PortMin
-          value: "20000"
-        - name: PortMax
-          value: "30000"
-        - name: IngressLabel
-          value: "ingress"
-        - name: TILLER_SERVICE_ACCOUNT
-          value: "tiller"
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 4002
+              protocol: TCP
+          env:
+          - name: LoadBalancerNamespace
+            value: "default"
+          - name: PortMin
+            value: "20000"
+          - name: PortMax
+            value: "30000"
+          - name: IngressLabel
+            value: "ingress"
+          - name: TILLER_SERVICE_ACCOUNT
+            value: "tiller"
       imagePullSecrets:
-        - name: deployment      
+        - name: deployment   
