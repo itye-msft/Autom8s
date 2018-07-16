@@ -60,4 +60,8 @@ typings/
 # next.js build output
 .next
 
+docker-dotnet-node-alpine/
+docker-dotnet-node-alpine/*
+.ps1
+.vscode
 
