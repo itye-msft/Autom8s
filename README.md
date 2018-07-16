@@ -13,7 +13,7 @@ Autom8s creates a single image which exposes several HTTP API endpoints for imme
 To install Autom8s in your cluster and configure it correctly use the following command:
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/itye-msft/kubernetes-dynamic-deployment-service/master/tiller.yaml
+kubectl apply -f https://raw.githubusercontent.com/itye-msft/kubernetes-dynamic-deployment-service/master/setup/tiller.yaml
 helm init --service-account tiller
 helm install <chart dir> --name <release name> --set rbac.create=true
 ```

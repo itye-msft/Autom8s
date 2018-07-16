@@ -5,7 +5,7 @@ class IngressManager {
 
     async setRule(serviceName, servicePort, specificport, specificlb, specificrelease) {
         var ipPortRelease = await this._getIpPortRelease(specificport, specificlb, specificrelease);
-        Console.log("Ingress port response: " + JSON.stringify(ipPortRelease));
+        console.log("Ingress port response: " + JSON.stringify(ipPortRelease));
         //prepare data to post
         let tcp = 'tcp.' + ipPortRelease.port;
         let v = {};
@@ -44,7 +44,7 @@ class IngressManager {
         else {
             //get free port/ip/release
             let ps = new portService();
-            Console.log("Ingress Calling get port")
+            console.log("Ingress Calling get port")
             return await ps.getPort()
             .then((data)=> {
                 ip = data.public_ip;

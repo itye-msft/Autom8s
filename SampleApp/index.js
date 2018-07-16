@@ -24,17 +24,17 @@ async function InstallChart(chart) {
     try {
         // perform helm install
         var installResponse = await requestPostAsync(Paths.HelmInstall, { form: { chartName: chart.name } });
-        installResponse = JSON.parse(installResponse);
+        installResponse = JSON.parse(installResponse.body);
 
         // create a rule to expose the new service expternally
         var ingressResponse = await requestGetAsync(Paths.SetIngressRule, { serviceName: installResponse.serviceName, servicePort: chart.servicePort });
-        ingressResponse = JSON.parse(ingressResponse);
+        ingressResponse = JSON.parse(ingressResponse.body);
 
         if (ingressResponse.information == "success") {
             return "Your new service: " + ingressResponse.releaseName + ", is publicly accessibly on " + ingressResponse.ip + ":" + ingressResponse.port;
         }
         else {
-            return "failed";
+            return "failed: " + ingressResponse.reason;
         }
     }
     catch (error) {

@@ -3,13 +3,16 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
 var helmBinaryLocation = process.env.HELM_BINARY;
-console.log('Initializing tiller with service account: ' + process.env.TILLER_SERVICE_ACCOUNT);
-exec(helmBinaryLocation + ' init --service-account ' + process.env.TILLER_SERVICE_ACCOUNT);
+/** Since autom8s is installed via a Chart, init was already been called, no need to init again.
+ * We are leaving this as a comment, in case someone will need to execute it when autom8s is installed via yaml files
+ */
+//console.log('Initializing tiller with service account: ' + process.env.TILLER_SERVICE_ACCOUNT);
+//exec(helmBinaryLocation + ' init --service-account ' + process.env.TILLER_SERVICE_ACCOUNT);
 
 class HelmWrapper {
 
     async install(deployOptions) {
-        console.log('Installing new chart. deployOptions:' + deployOptions);
+        console.log('Installing new chart. deployOptions:' + JSON.stringify(deployOptions));
         let chartName = deployOptions.chartName.toLowerCase();
         let releaseName = deployOptions.releaseName;
         let installCommand = 'json install ' + chartName;
