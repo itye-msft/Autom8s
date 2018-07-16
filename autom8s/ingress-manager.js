@@ -1,5 +1,5 @@
-var portService = require('../k8s-port-service/port-service');
-const HelmWrapper = require("../k8s-helm-http-wrapper/helm-wrapper");
+var portService = require('./port-service');
+const HelmWrapper = require("./helm-wrapper");
 
 class IngressManager {
 

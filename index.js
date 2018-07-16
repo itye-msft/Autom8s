@@ -1,8 +1,8 @@
 'use strict';
 var express = require('express');
-var helmServer = require('./k8s-helm-http-wrapper/helm-server');
-var portServer = require('./k8s-port-service/port-server');
-var ingressServer = require('./k8s-ingress-manager/ingress-server');
+var helmServer = require('./autom8s/helm-server');
+var portServer = require('./autom8s/port-server');
+var ingressServer = require('./autom8s/ingress-server');
 var sampleApp = require("./SampleApp/index");
 var bodyParser = require('body-parser');
 
