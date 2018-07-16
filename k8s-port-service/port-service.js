@@ -33,11 +33,13 @@ class PortService {
             this.specLoaded = true;
         }
         var self = this;
+        console.log("Getting existing ports...");
         return this.client.api.v1.namespaces(this.settings.LoadBalancerNamespace).services.get()
             .then(function (services) {
                 //select only load balancers
                 let LoadBalancers = self._getLoadBalancersByLabel(services);
                 let list = self._listPorts(LoadBalancers);
+                console.log("Got ports: "+ list);
                 return list;
             });
     }
@@ -49,11 +51,12 @@ class PortService {
         }
         //make an API call for all services in the given namespace
         var self = this;
+        console.log("Getting port");
         return this.client.api.v1.namespaces(this.settings.LoadBalancerNamespace).services.get()
             .then(function (services) {
                 //select only load balancers
                 let LoadBalancers = self._getLoadBalancersByLabel(services);
-    
+                console.log("Found " + LoadBalancers.length + " Load balancers");
                 if (LoadBalancers.length == 0) {
                     //exit with error
                     return { "error": "Could not find any load balancers in namepspace: " + this.settings.LoadBalancerNamespace };
@@ -76,13 +79,15 @@ class PortService {
                         return { "error": "Could not allocate load balancer" };
                     }
                     else {
-    
+                        console.log("Attempting to find a free port");
                         let freeProt = self._getFreePort(service);
-                        return {
+                        var response = {
                             "public_ip": service.status.loadBalancer.ingress[0].ip,
                             "port": freeProt,
                             "release": service.spec.selector.release
                         };
+                        console.log(JSON.stringify(response));
+                        return response;
                     }
                 }
             });

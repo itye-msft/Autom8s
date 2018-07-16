@@ -38,6 +38,7 @@ async function InstallChart(chart) {
         }
     }
     catch (error) {
+        console.log(error);
         return "failed";
     }
 }

@@ -5,7 +5,7 @@ class IngressManager {
 
     async setRule(serviceName, servicePort, specificport, specificlb, specificrelease) {
         var ipPortRelease = await this._getIpPortRelease(specificport, specificlb, specificrelease);
-        
+        Console.log("Ingress port response: " + JSON.stringify(ipPortRelease));
         //prepare data to post
         let tcp = 'tcp.' + ipPortRelease.port;
         let v = {};
@@ -19,7 +19,9 @@ class IngressManager {
 
         // send it to the helm service
         let helmWrapper = new HelmWrapper();
-        await helmWrapper.upgrade(upgradeOptions)
+        console.log("Ingress Calling helm upgrade")
+        var upgradeResponse = await helmWrapper.upgrade(upgradeOptions)
+        console.log("Ingress Helm upgrade repsonse:" + JSON.stringify(upgradeResponse));
         return {
             ip: ipPortRelease.ip,
             port: ipPortRelease.port,
@@ -42,6 +44,7 @@ class IngressManager {
         else {
             //get free port/ip/release
             let ps = new portService();
+            Console.log("Ingress Calling get port")
             return await ps.getPort()
             .then((data)=> {
                 ip = data.public_ip;
