@@ -44,10 +44,7 @@ class HelmWrapper {
                         throw new Error("Install command returned unknown response: " + responseData.json);
                     }
                 }
-                
-                
             })
-
     }
 
     async delete(delOptions) {
