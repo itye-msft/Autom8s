@@ -15,7 +15,7 @@ To install Autom8s in your cluster and configure it correctly use the following 
 ```
 kubectl apply -f https://raw.githubusercontent.com/itye-msft/kubernetes-dynamic-deployment-service/master/setup/tiller.yaml
 helm init --service-account tiller
-helm install <chart dir> --name <release name> --set rbac.create=true
+helm install <chart dir> --name <release name> --set rbac.create=true [--namespace <ns name>]
 ```
 Once the environment is ready, you also need to install your first nginx-ingress-controller:
 
