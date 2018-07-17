@@ -36,8 +36,7 @@ class HelmWrapper {
                     if (svc) {
                         return {
                             serviceName: svc,
-                            releaseName: json.releaseName,
-                            chartName: chartName
+                            releaseName: json.releaseName
                         };
                     }
                     else {

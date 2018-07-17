@@ -17,7 +17,7 @@ router.get('/setrule',
         await ingressManager.setRule(serviceName, servicePort, specificport, specificlb, specificrelease)
             .then((response) => {
                 res.send({
-                    information: "success",
+                    status: "success",
                     ip: response.ip,
                     port: response.port,
                     releaseName: response.releaseName
@@ -26,7 +26,7 @@ router.get('/setrule',
             .catch((err) => {
                 res.statusCode = 500;
                 res.send({
-                    information: "failed",
+                    status: "failed",
                     reason: err.toString()
                 });
             });

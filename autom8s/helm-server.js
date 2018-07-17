@@ -12,15 +12,15 @@ router.post('/install',
         await helmWrapper.install(deployOptions)
             .then((installResponse) => {
                 res.send({
-                    information: "success",
+                    status: "success",
                     serviceName: installResponse.serviceName,
                     releaseName: installResponse.releaseName,
-                    chartName: installResponse.chartName
+                    chartName: deployOptions.chartName
                 });
             }).catch((err) => {
                 res.statusCode = 500;
                 res.send({
-                    information: "failed",
+                    status: "failed",
                     reason: err.toString()
                 });
             })
@@ -33,12 +33,12 @@ router.post('/delete',
         await helmWrapper.delete(delOptions)
             .then(() => {
                 res.send({
-                    information: "success"
+                    status: "success"
                 });
             }).catch((err) => {
                 res.statusCode = 500;
                 res.send({
-                    information: "failed",
+                    status: "failed",
                     reason: err.toString()
                 });
             })
@@ -53,12 +53,12 @@ router.post('/upgrade',
         await helmWrapper.upgrade(deployOptions)
             .then(() => {
                 res.send({
-                    information: "success"
+                    status: "success"
                 });
             }).catch((err) => {
                 res.statusCode = 500;
                 res.send({
-                    information: "failed",
+                    status: "failed",
                     reason: err.toString()
                 });
             })

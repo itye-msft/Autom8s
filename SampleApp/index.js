@@ -30,7 +30,7 @@ async function InstallChart(chart) {
         var ingressResponse = await requestGetAsync(Paths.SetIngressRule, { serviceName: installResponse.serviceName, servicePort: chart.servicePort });
         ingressResponse = JSON.parse(ingressResponse.body);
 
-        if (ingressResponse.information == "success") {
+        if (ingressResponse.status == "success") {
             return "Your new service: " + ingressResponse.releaseName + ", is publicly accessibly on " + ingressResponse.ip + ":" + ingressResponse.port;
         }
         else {
