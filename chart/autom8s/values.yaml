@@ -12,3 +12,7 @@ image:
 service:
   type: LoadBalancer
   port: 4000
+
+namespace: default
+ingressNamespace: default
+  
