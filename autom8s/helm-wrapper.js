@@ -9,6 +9,9 @@ var helmBinaryLocation = process.env.HELM_BINARY;
 //console.log('Initializing tiller with service account: ' + process.env.TILLER_SERVICE_ACCOUNT);
 //exec(helmBinaryLocation + ' init --service-account ' + process.env.TILLER_SERVICE_ACCOUNT);
 
+// Run once init client only (because tiller is already installed, see above)
+exec(helmBinaryLocation + ' init --client-only');
+
 class HelmWrapper {
 
     async install(deployOptions) {
