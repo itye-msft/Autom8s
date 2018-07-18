@@ -64,4 +64,4 @@ docker-dotnet-node-alpine/
 docker-dotnet-node-alpine/*
 *ps1
 .vscode
-
+!/chart/*.tgz
