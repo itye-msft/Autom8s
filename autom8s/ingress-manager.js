@@ -18,7 +18,7 @@ class IngressManager {
         }
 
         // send it to the helm service
-        let helmWrapper = new HelmWrapper();
+        let helmWrapper = this._factoryGetHelmWrapper();
         console.log("Ingress Calling helm upgrade")
         var upgradeResponse = await helmWrapper.upgrade(upgradeOptions)
         console.log("Ingress Helm upgrade repsonse:" + JSON.stringify(upgradeResponse));
@@ -43,18 +43,19 @@ class IngressManager {
         }
         else {
             //get free port/ip/release
-            let ps = new portService();
+            let ps = this._factoryGetPortService();
             console.log("Ingress Calling get port")
-            return await ps.getPort()
-            .then((data)=> {
-                ip = data.public_ip;
-                port = data.port;
-                release = data.release;
-                
-                return { ip:ip, port:port, release:release};
-            });
+            var data = await ps.getPort();
+            ip = data.public_ip;
+            port = data.port;
+            release = data.release;
+            
+            return { ip:ip, port:port, release:release};
         }
     }
+
+    _factoryGetPortService(){ return new portService();}
+    _factoryGetHelmWrapper(){ return new HelmWrapper();}
 }
 
 

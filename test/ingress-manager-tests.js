@@ -1,37 +1,59 @@
 var assert = require('assert');
 var expect = require('chai').expect;
 var should = require('chai').should(); 
+var HelmWrapper = require('../autom8s/helm-wrapper');
 var PortService = require('../autom8s/port-service');
+var IngressManager = require('../autom8s/ingress-manager');
 
 describe('Ctor', function () {
     it('instance is created', function () {
-        var ps = new PortService();
-        assert.notEqual(ps, null);
-    });
-
-    it('client is not null', function () {
-        var ps = new PortService();
-        assert.notEqual(ps.client, null);
+        var im = new IngressManager();
+        assert.notEqual(im, null);
     });
 });
 
-describe('Client', function () {
-    it('getExistingPorts return 2 objects', async function () {
-        var ps = new PortService();
-        ps.client = new ClientMock();
-        ps.settings.IngressLabel = "ingress";
-        var res = await ps.getExistingPorts();
-        assert.equal(res.length, 1);
+describe('set rule', function () {
+    it('set rule succsess', async function () {
+        
+        var im = new IngressManager();
+
+        im._factoryGetHelmWrapper = function (){
+            var hw = new HelmWrapper();
+            //mock
+            hw._executeHelm = async function(command, values = '') {
+                return { error:'', json:'{ data:1 }'};
+            }
+            return hw;
+        }
+        im._factoryGetPortService = function (){
+            var ps = new PortService();
+            ps.client = new ClientMock();
+            ps.settings.IngressLabel = "ingress";
+            return ps;
+        }
+        
+        //act
+        var res = await im.setRule("serviceNameA","123");
+        assert.equal(res.ip, '40.118.63.39');
+        assert.equal(res.port, '20000');
+        assert.equal(res.releaseName, 'independent-porcupine');
     });
 
-    it('getPort return ip and port', async function () {
-        var ps = new PortService();
-        ps.client = new ClientMock();
-        ps.settings.IngressLabel = "ingress";
-        var res = await ps.getPort();
-        assert.notEqual(res.public_ip, "");
-        expect(res.port).to.be.above(0);
-        assert.notEqual(res.release, "");
+    it('get ip port release', async function () {
+        
+        var im = new IngressManager();
+        im._factoryGetPortService = function (){
+            var ps = new PortService();
+            ps.client = new ClientMock();
+            ps.settings.IngressLabel = "ingress";
+            return ps;
+        }
+        
+        //act
+        var res = await im._getIpPortRelease();
+        assert.equal(res.ip, '40.118.63.39');
+        assert.equal(res.port, '20000');
+        assert.equal(res.release, 'independent-porcupine');
     });
 });
 
