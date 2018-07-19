@@ -12,10 +12,11 @@ Autom8s creates a single image which exposes several HTTP API endpoints for imme
 
 To install Autom8s in your cluster and configure it correctly use the following command:
 
-```
+```bash
 kubectl apply -f https://raw.githubusercontent.com/itye-msft/kubernetes-dynamic-deployment-service/master/setup/tiller.yaml
 helm init --service-account tiller
-helm install <chart dir> --name <release name> --set rbac.create=true [--namespace <ns name>]
+helm install <chart dir> --set rbac.create=true [--name <release name>] [--namespace <ns name>] 
+# the namespace value provided in the chart's values file must match the namespace in the install command
 ```
 Once the environment is ready, you also need to install your first nginx-ingress-controller:
 
