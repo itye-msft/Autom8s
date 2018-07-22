@@ -1,29 +1,29 @@
-"use strict";
-var PortService = require('./port-service');
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const PortService = require('./port-service');
+
+const router = express.Router();
 
 router.get('/getPort',
-    async (req, res, next) => {
-        let portService = new PortService();
-        let lbip = req.body.lbip;
+  async (req, res, next) => {
+    const portService = new PortService();
+    const { lbip } = req.body;
 
-        await portService.getPort(lbip)
-            .then((data) => {
-                res.send(data);
-            })
-            .catch(next);
-    });
+    await portService.getPort(lbip)
+      .then((data) => {
+        res.send(data);
+      })
+      .catch(next);
+  });
 
 router.get('/getExistingPorts',
-    async (req, res, next) => {
-        let portService = new PortService();
+  async (req, res, next) => {
+    const portService = new PortService();
 
-        await portService.getExistingPorts()
-            .then((data) => {
-                res.send(data);
-            })
-            .catch(next);
-    });
+    await portService.getExistingPorts()
+      .then((data) => {
+        res.send(data);
+      })
+      .catch(next);
+  });
 
 module.exports = router;
