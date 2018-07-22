@@ -14,8 +14,7 @@ router.post('/install',
                 res.send({
                     status: "success",
                     serviceName: installResponse.serviceName,
-                    releaseName: installResponse.releaseName,
-                    chartName: deployOptions.chartName
+                    releaseName: installResponse.releaseName
                 });
             }).catch((err) => {
                 res.statusCode = 500;

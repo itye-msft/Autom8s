@@ -1,23 +1,23 @@
 'use strict';
-const IngressManager = require("./ingress-manager");
+const IngressManager = require('./ingress-manager');
 var express = require('express');
 
 var router = express.Router();
 
-router.get('/setrule',
+router.post('/setrule',
     async (req, res) => {
         //init params
-        let serviceName = req.query.serviceName;
-        let servicePort = req.query.servicePort;
-        let specificlb = req.query.specificlb;
-        let specificport = req.query.specificport;
-        let specificrelease = req.query.specificrelease;
+        let serviceName = req.body.serviceName;
+        let servicePort = req.body.servicePort;
+        let specificlb = req.body.specificlb;
+        let specificport = req.body.specificport;
+        let specificrelease = req.body.specificrelease;
 
         let ingressManager = new IngressManager();
         await ingressManager.setRule(serviceName, servicePort, specificport, specificlb, specificrelease)
             .then((response) => {
                 res.send({
-                    status: "success",
+                    status: 'success',
                     ip: response.ip,
                     port: response.port,
                     releaseName: response.releaseName
@@ -26,7 +26,7 @@ router.get('/setrule',
             .catch((err) => {
                 res.statusCode = 500;
                 res.send({
-                    status: "failed",
+                    status: 'failed',
                     reason: err.toString()
                 });
             });

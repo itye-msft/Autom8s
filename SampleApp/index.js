@@ -27,7 +27,7 @@ async function InstallChart(chart) {
         installResponse = JSON.parse(installResponse.body);
 
         // create a rule to expose the new service expternally
-        var ingressResponse = await requestGetAsync(Paths.SetIngressRule, { serviceName: installResponse.serviceName, servicePort: chart.servicePort });
+        var ingressResponse = await requestPostAsync(Paths.SetIngressRule, { form: { serviceName: installResponse.serviceName, servicePort: chart.servicePort }});
         ingressResponse = JSON.parse(ingressResponse.body);
 
         if (ingressResponse.status == "success") {
