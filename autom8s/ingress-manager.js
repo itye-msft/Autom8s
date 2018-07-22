@@ -2,8 +2,8 @@ const PortService = require('./port-service');
 const HelmWrapper = require('./helm-wrapper');
 
 class IngressManager {
-  static async setRule(serviceName, servicePort, specificport, specificlb, specificrelease) {
-    const ipPortRelease = await IngressManager._getIpPortRelease(
+  async setRule(serviceName, servicePort, specificport, specificlb, specificrelease) {
+    const ipPortRelease = await this._getIpPortRelease(
       specificport, specificlb, specificrelease,
     );
     console.log(`Ingress port response: ${JSON.stringify(ipPortRelease)}`);
@@ -30,16 +30,16 @@ class IngressManager {
     };
   }
 
-  static async _getIpPortRelease(specificport, specificlb, specificrelease) {
+  async _getIpPortRelease(specificport, specificlb, specificrelease) {
     // if specific port/ip/release were requested:
     if (specificport !== undefined && specificport !== ''
     && specificlb !== undefined && specificlb !== ''
     && specificrelease !== undefined && specificrelease !== '') {
-      return { ip: specificlb, port: specificport, release:specificrelease };
+      return { ip: specificlb, port: specificport, release: specificrelease };
     }
 
     // get free port/ip/release
-    const ps = IngressManager._factoryGetPortService();
+    const ps = this._factoryGetPortService();
     console.log('Ingress Calling get port');
     const data = await ps.getPort();
     const ip = data.public_ip;
@@ -49,9 +49,9 @@ class IngressManager {
     return { ip, port, release };
   }
 
-  static _factoryGetPortService() { return new PortService(); }
+  _factoryGetPortService() { return new PortService(); }
 
-  static _factoryGetHelmWrapper() { return HelmWrapper; }
+  _factoryGetHelmWrapper() { return new HelmWrapper(); }
 }
 
 

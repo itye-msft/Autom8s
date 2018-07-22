@@ -10,6 +10,7 @@ const helmBinaryLocation = process.env.HELM_BINARY;
 // exec(helmBinaryLocation + ' init --service-account ' + process.env.TILLER_SERVICE_ACCOUNT);
 
 // Run once init client only (because tiller is already installed, see above)
+console.log(`initializing helm client. helm binary: ${helmBinaryLocation}`);
 exec(`${helmBinaryLocation} init --client-only`);
 
 class HelmWrapper {
@@ -35,7 +36,7 @@ class HelmWrapper {
     return regex.test(obj.toString());
   }
 
-  static async install(deployOptions) {
+  async install(deployOptions) {
     console.log(`Installing new chart. deployOptions:${JSON.stringify(deployOptions)}`);
     const chartName = deployOptions.chartName.toLowerCase();
     const { releaseName } = deployOptions;
@@ -65,23 +66,23 @@ class HelmWrapper {
       });
   }
 
-  static async delete(delOptions) {
+  async delete(delOptions) {
     const { releaseName } = delOptions;
     console.log(`deleting release: ${releaseName}`);
 
     return this._executeHelm(`delete ${releaseName}`);
   }
 
-  static async upgrade(deployOptions) {
+  async upgrade(deployOptions) {
     const chartName = deployOptions.chartName.toLowerCase();
     const releaseName = deployOptions.releaseName.toLowerCase();
     const upgradeCommand = `upgrade ${releaseName} ${chartName}`;
     console.log(`upgradeCommand command: ${upgradeCommand}`);
 
-    return HelmWrapper._innerInstallUpgrade(upgradeCommand, deployOptions);
+    return this._innerInstallUpgrade(upgradeCommand, deployOptions);
   }
 
-  static async _executeHelm(command, values = '') {
+  async _executeHelm(command, values = '') {
     const { stdout, stderr } = await exec(`${helmBinaryLocation} ${command}${values}`);
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);
@@ -102,16 +103,16 @@ class HelmWrapper {
     return configStr;
   }
 
-  static async _innerInstallUpgrade(command, deployOptions) {
+  async _innerInstallUpgrade(command, deployOptions) {
     let updateCmd = command;
     const chartName = deployOptions.chartName.toLowerCase();
 
     if (deployOptions.privateChartsRepo) {
       const tokens = chartName.split('/');
       // adds the private repo to helm known repos
-      await HelmWrapper._executeHelm(`repo add ${tokens[0]} ${deployOptions.privateChartsRepo}`);
+      await this._executeHelm(`repo add ${tokens[0]} ${deployOptions.privateChartsRepo}`);
       // fetch the data from all known repos
-      await HelmWrapper._executeHelm('repo update');
+      await this._executeHelm('repo update');
     }
 
     if (deployOptions.reuseValue !== undefined
@@ -120,7 +121,7 @@ class HelmWrapper {
     }
 
     // install the chart from one of the known repos
-    return HelmWrapper._executeHelm(updateCmd, this._getConfigValues(deployOptions.values));
+    return this._executeHelm(updateCmd, HelmWrapper._getConfigValues(deployOptions.values));
   }
 }
 

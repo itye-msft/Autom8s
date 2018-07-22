@@ -8,7 +8,8 @@ router.post('/install',
   async (req, res) => {
     const deployOptions = req.body;
 
-    await HelmWrapper.install(deployOptions)
+    const helmWrapper = new HelmWrapper();
+    await helmWrapper.install(deployOptions)
       .then((installResponse) => {
         res.send({
           status: 'success',
@@ -27,7 +28,8 @@ router.post('/install',
 router.post('/delete',
   async (req, res) => {
     const delOptions = req.body;
-    await HelmWrapper.delete(delOptions)
+    const helmWrapper = new HelmWrapper();
+    await helmWrapper.delete(delOptions)
       .then(() => {
         res.send({
           status: 'success',
@@ -45,7 +47,8 @@ router.post('/delete',
 router.post('/upgrade',
   async (req, res) => {
     const deployOptions = req.body;
-    await HelmWrapper.upgrade(deployOptions)
+    const helmWrapper = new HelmWrapper();
+    await helmWrapper.upgrade(deployOptions)
       .then(() => {
         res.send({
           status: 'success',
