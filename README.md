@@ -83,6 +83,7 @@ Here are the available endpoints of the API:
 | install | POST | install a helm chart | json |
 
 **Paramaters**
+
 | Name | Description | Optional|
 | ---  | ----         | ----        |
 | chartName | name of the chart | mandatory |
@@ -96,6 +97,7 @@ Here are the available endpoints of the API:
 | upgrade | POST | upgrade a helm release | json |
 
 **Paramaters**
+
 | Name | Description | Optional|
 | ---  | ----         | ----        |
 | chartName | name of the chart | mandatory |
@@ -109,6 +111,7 @@ Here are the available endpoints of the API:
 | upgrade | POST | delete a helm release | json |
 
 **Paramaters**
+
 | Name | Description | Optional|
 | ---  | ----         | ----        |
 | releaseName | the release name to delete | mandatory |
@@ -120,6 +123,7 @@ Here are the available endpoints of the API:
 | setrule | POST | create an ingress rule | json |
 
 **Paramaters**
+
 | Name | Description | Optional|
 | ---  | ----         | ----        |
 | serviceName | the name of the installed service to expose | mandatory |
