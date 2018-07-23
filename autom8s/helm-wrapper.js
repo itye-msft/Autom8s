@@ -14,28 +14,6 @@ console.log(`initializing helm client. helm binary: ${helmBinaryLocation}`);
 exec(`${helmBinaryLocation} init --client-only`);
 
 class HelmWrapper {
-  static _findFirstService(json) {
-    let name = null;
-    json.resources.forEach((element) => {
-      if (element.name === 'v1/Service') {
-        name = element.resources[0];
-      }
-    });
-    return name;
-  }
-
-  static _convertToBool(obj) {
-    if (obj == null) {
-      return false;
-    }
-    // will match one and only one of the string 'true','1', or 'on' rerardless
-    // of capitalization and regardless off surrounding white-space.
-    //
-    const regex = /^\s*(true|1|on)\s*$/i;
-
-    return regex.test(obj.toString());
-  }
-
   async install(deployOptions) {
     console.log(`Installing new chart. deployOptions:${JSON.stringify(deployOptions)}`);
     const chartName = deployOptions.chartName.toLowerCase();
@@ -80,6 +58,28 @@ class HelmWrapper {
     console.log(`upgradeCommand command: ${upgradeCommand}`);
 
     return this._innerInstallUpgrade(upgradeCommand, deployOptions);
+  }
+
+  static _findFirstService(json) {
+    let name = null;
+    json.resources.forEach((element) => {
+      if (element.name === 'v1/Service') {
+        name = element.resources[0];
+      }
+    });
+    return name;
+  }
+
+  static _convertToBool(obj) {
+    if (obj == null) {
+      return false;
+    }
+    // will match one and only one of the string 'true','1', or 'on' rerardless
+    // of capitalization and regardless off surrounding white-space.
+    //
+    const regex = /^\s*(true|1|on)\s*$/i;
+
+    return regex.test(obj.toString());
   }
 
   async _executeHelm(command, values = '') {
