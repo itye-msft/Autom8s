@@ -74,8 +74,8 @@ class Helm {
     if (obj == null) {
       return false;
     }
-    // will match one and only one of the string 'true','1', or 'on' rerardless
-    // of capitalization and regardless off surrounding white-space.
+    // will match one and only one of the string 'true','1', or 'on' regardless
+    // of capitalization and regardless of surrounding white-space.
     //
     const regex = /^\s*(true|1|on)\s*$/i;
 
@@ -104,9 +104,10 @@ class Helm {
   }
 
   async _innerInstallUpgrade(command, deployOptions) {
-    let updateCmd = command;
+    let updatedCmd = command;
     const chartName = deployOptions.chartName.toLowerCase();
 
+    // when requesting install from a private repository, helm repositories list must be updated first
     if (deployOptions.privateChartsRepo) {
       const tokens = chartName.split('/');
       // adds the private repo to helm known repos
@@ -117,11 +118,11 @@ class Helm {
 
     if (deployOptions.reuseValue !== undefined
       && Helm._convertToBool(deployOptions.reuseValue)) {
-      updateCmd += ' --reuse-values ';
+        updatedCmd += ' --reuse-values ';
     }
 
     // install the chart from one of the known repos
-    return this._executeHelm(updateCmd, Helm._getConfigValues(deployOptions.values));
+    return this._executeHelm(updatedCmd, Helm._getConfigValues(deployOptions.values));
   }
 }
 

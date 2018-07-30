@@ -65,7 +65,7 @@ class PortService {
         if (lbip !== undefined && lbip !== '') {
           service = PortService._getLoadBalancerByIP(LoadBalancers, lbip);
         } else {
-          // Else, In order to alocate a free port evenly from the load balancers,
+          // Else, In order to allocate a free port evenly from the load balancers,
           // select a random one.
           service = PortService._getRandomLoadBalancer(LoadBalancers);
         }
