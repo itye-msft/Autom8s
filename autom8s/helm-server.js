@@ -1,5 +1,5 @@
 ﻿const express = require('express');
-const HelmWrapper = require('./helm-wrapper');
+const Helm = require('./helm');
 
 const router = express.Router();
 
@@ -8,8 +8,8 @@ router.post('/install',
   async (req, res) => {
     const deployOptions = req.body;
 
-    const helmWrapper = new HelmWrapper();
-    await helmWrapper.install(deployOptions)
+    const helm = new Helm();
+    await helm.install(deployOptions)
       .then((installResponse) => {
         res.send({
           status: 'success',
@@ -28,8 +28,8 @@ router.post('/install',
 router.post('/delete',
   async (req, res) => {
     const delOptions = req.body;
-    const helmWrapper = new HelmWrapper();
-    await helmWrapper.delete(delOptions)
+    const helm = new Helm();
+    await helm.delete(delOptions)
       .then(() => {
         res.send({
           status: 'success',
@@ -47,8 +47,8 @@ router.post('/delete',
 router.post('/upgrade',
   async (req, res) => {
     const deployOptions = req.body;
-    const helmWrapper = new HelmWrapper();
-    await helmWrapper.upgrade(deployOptions)
+    const helm = new Helm();
+    await helm.upgrade(deployOptions)
       .then(() => {
         res.send({
           status: 'success',

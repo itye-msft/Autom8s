@@ -1,5 +1,5 @@
 const PortService = require('./port-service');
-const HelmWrapper = require('./helm-wrapper');
+const Helm = require('./helm');
 
 class IngressManager {
   async setRule(serviceName, servicePort, specificport, specificlb, specificrelease) {
@@ -19,9 +19,9 @@ class IngressManager {
     };
 
     // send it to the helm service
-    const helmWrapper = this._factoryGetHelmWrapper();
+    const helm = this._factoryGetHelmWrapper();
     console.log('Ingress Calling helm upgrade');
-    const upgradeResponse = await helmWrapper.upgrade(upgradeOptions);
+    const upgradeResponse = await helm.upgrade(upgradeOptions);
     console.log(`Ingress Helm upgrade repsonse:${JSON.stringify(upgradeResponse)}`);
     return {
       ip: ipPortRelease.ip,
@@ -51,7 +51,7 @@ class IngressManager {
 
   _factoryGetPortService() { return new PortService(); }
 
-  _factoryGetHelmWrapper() { return new HelmWrapper(); }
+  _factoryGetHelmWrapper() { return new Helm(); }
 }
 
 
