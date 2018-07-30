@@ -19,7 +19,7 @@ class IngressManager {
     };
 
     // send it to the helm service
-    const helm = this._factoryGetHelmWrapper();
+    const helm = this._factoryGetHelm();
     console.log('Ingress Calling helm upgrade');
     const upgradeResponse = await helm.upgrade(upgradeOptions);
     console.log(`Ingress Helm upgrade repsonse:${JSON.stringify(upgradeResponse)}`);
@@ -51,7 +51,7 @@ class IngressManager {
 
   _factoryGetPortService() { return new PortService(); }
 
-  _factoryGetHelmWrapper() { return new Helm(); }
+  _factoryGetHelm() { return new Helm(); }
 }
 
 

@@ -17,7 +17,7 @@ describe('set rule', function () {
         
         var im = new IngressManager();
 
-        im._factoryGetHelmWrapper = function () {
+        im._factoryGetHelm = function () {
           //mock
           var hw = new Helm();
           hw._executeHelm = async function(command, values = '') {
