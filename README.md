@@ -9,10 +9,10 @@ The solution we propose consists of two services:
 
 **Expose as a service**: expose installed helm charts to the internet, via a single IP.
 
-### When to use this  solution
-* When you need to automate deployments in your cluster.
+### When to use this solution
+* Automating deployments in the cluster.
 * Performing automation tests.
-* When you need to programmatically manage the cluster from your code.
+* Programmatically managing the cluster from the code.
 
 ## Installation
 Installing autom8s takes 3 steps:
