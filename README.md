@@ -135,6 +135,9 @@ Here are the available endpoints of the API:
 ---
 ## Deep dive into the code
 ### Helm as a service
+Our approach is to take Helm and run it within the cluster, as a RESTful endpoint. We have created a Node.js server which receives clients commands as json, prepares the relevant Helm command and runs it immediately.
+By leveraging Helm and running it as a containerized application within the cluster we were able to automate the process and gain easier control over the cluster with all the features of Helm such as packaging code and versioning of the deployment files.
+
 ### Expose as a service
 When we publicly expose an app, the final result would be a public IP and Port endpoint.
 
