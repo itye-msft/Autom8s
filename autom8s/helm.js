@@ -13,7 +13,7 @@ const helmBinaryLocation = process.env.HELM_BINARY;
 console.log(`initializing helm client. helm binary: ${helmBinaryLocation}`);
 exec(`${helmBinaryLocation} init --client-only`);
 
-class HelmWrapper {
+class Helm {
   async install(deployOptions) {
     console.log(`Installing new chart. deployOptions:${JSON.stringify(deployOptions)}`);
     const chartName = deployOptions.chartName.toLowerCase();
@@ -31,7 +31,7 @@ class HelmWrapper {
           throw new Error(`Install command failed: ${responseData.error}`);
         } else {
           const json = JSON.parse(responseData.json);
-          const svc = HelmWrapper._findFirstService(json);
+          const svc = Helm._findFirstService(json);
           if (svc) {
             return {
               serviceName: svc,
@@ -116,13 +116,13 @@ class HelmWrapper {
     }
 
     if (deployOptions.reuseValue !== undefined
-      && HelmWrapper._convertToBool(deployOptions.reuseValue)) {
+      && Helm._convertToBool(deployOptions.reuseValue)) {
       updateCmd += ' --reuse-values ';
     }
 
     // install the chart from one of the known repos
-    return this._executeHelm(updateCmd, HelmWrapper._getConfigValues(deployOptions.values));
+    return this._executeHelm(updateCmd, Helm._getConfigValues(deployOptions.values));
   }
 }
 
-module.exports = HelmWrapper;
+module.exports = Helm;

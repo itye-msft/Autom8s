@@ -1,7 +1,7 @@
 var assert = require('assert');
 var expect = require('chai').expect;
 var should = require('chai').should(); 
-var HelmWrapper = require('../autom8s/helm-wrapper');
+var Helm = require('../autom8s/helm');
 var PortService = require('../autom8s/port-service');
 var IngressManager = require('../autom8s/ingress-manager');
 
@@ -19,7 +19,7 @@ describe('set rule', function () {
 
         im._factoryGetHelmWrapper = function () {
           //mock
-          var hw = new HelmWrapper();
+          var hw = new Helm();
           hw._executeHelm = async function(command, values = '') {
               return { error:'', json:'{ data:1 }'};
           }
