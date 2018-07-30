@@ -17,7 +17,7 @@ The solution we propose consists of two services:
 ## Installation
 Installing autom8s takes 3 steps:
 
-1. Grant tiller sufficient permissions to run helm inside the clsuter, and install the Autom8s Chart.
+1. Grant tiller sufficient permissions to run helm inside the cluster, and install the Autom8s Chart.
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/itye-msft/kubernetes-dynamic-deployment-service/master/setup/tiller.yaml
 helm init --service-account tiller
