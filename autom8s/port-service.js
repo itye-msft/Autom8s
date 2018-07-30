@@ -45,6 +45,7 @@ class PortService {
       await this.client.loadSpec();
       this.specLoaded = true;
     }
+
     // make an API call for all services in the given namespace
     var self = this;
     console.log('Getting port');
@@ -114,7 +115,7 @@ class PortService {
 
     while (currentPort <= max && portsInUse.includes(currentPort)) {
       // while in ports
-      currentPort++;
+      currentPort += 1;
     }
     return currentPort;
   }

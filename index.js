@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const helmServer = require('./autom8s/helm-server');
 const portServer = require('./autom8s/port-server');
 const ingressServer = require('./autom8s/ingress-server');
-const sampleApp = require('./SampleApp/index');
+const sampleApp = require('./sample/index');
 
 const app = express();
 

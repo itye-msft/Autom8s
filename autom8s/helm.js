@@ -97,7 +97,7 @@ class Helm {
     let configStr = '';
     for (const attribute in deployObject) {
       if (deployObject.hasOwnProperty(attribute)) {
-        configStr += ` --set ${  attribute  }=${  deployObject[attribute]}`;
+        configStr += ` --set ${attribute}=${deployObject[attribute]}`;
       }
     }
     return configStr;
@@ -107,7 +107,8 @@ class Helm {
     let updatedCmd = command;
     const chartName = deployOptions.chartName.toLowerCase();
 
-    // when requesting install from a private repository, helm repositories list must be updated first
+    // when requesting install from a private repository,
+    // helm repositories list must be updated first
     if (deployOptions.privateChartsRepo) {
       const tokens = chartName.split('/');
       // adds the private repo to helm known repos
@@ -118,7 +119,7 @@ class Helm {
 
     if (deployOptions.reuseValue !== undefined
       && Helm._convertToBool(deployOptions.reuseValue)) {
-        updatedCmd += ' --reuse-values ';
+      updatedCmd += ' --reuse-values ';
     }
 
     // install the chart from one of the known repos

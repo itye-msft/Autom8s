@@ -4,6 +4,10 @@
         "no-underscore-dangle": 0,
         "no-console": 0,
         "func-names": 0,
-        "linebreak-style": 0
+        "linebreak-style": 0,
+        "prefer-destructuring": 0,
+        "class-methods-use-this": 0,
+        "no-restricted-syntax": 0,
+        "no-prototype-builtins": 0
     }
 }
