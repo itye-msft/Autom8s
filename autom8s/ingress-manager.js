@@ -18,7 +18,7 @@ class IngressManager {
       values: v,
     };
 
-    // send it to the helm service
+    // send the data to the helm service
     const helm = this._factoryGetHelm();
     console.log('Ingress Calling helm upgrade');
     const upgradeResponse = await helm.upgrade(upgradeOptions);
@@ -32,9 +32,9 @@ class IngressManager {
 
   async _getIpPortRelease(specificport, specificlb, specificrelease) {
     // if specific port/ip/release were requested:
-    if (specificport !== undefined && specificport !== ''
-    && specificlb !== undefined && specificlb !== ''
-    && specificrelease !== undefined && specificrelease !== '') {
+    if (typeof specificport !== 'undefined' && specificport
+    && typeof specificlb !== 'undefined' && specificlb
+    && typeof specificrelease !== 'undefined' && specificrelease) {
       return { ip: specificlb, port: specificport, release: specificrelease };
     }
 
@@ -49,6 +49,8 @@ class IngressManager {
     return { ip, port, release };
   }
 
+  // Factory methods: comes handy for testing purposes, as we can inject
+  // mock behaviour
   _factoryGetPortService() { return new PortService(); }
 
   _factoryGetHelm() { return new Helm(); }

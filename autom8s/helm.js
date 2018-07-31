@@ -27,8 +27,10 @@ class Helm {
 
     return this._innerInstallUpgrade(installCommand, deployOptions)
       .then((responseData) => {
-        if (responseData.error) {
+        if (responseData && responseData.error) {
           throw new Error(`Install command failed: ${responseData.error}`);
+        } else if (!responseData) {
+          throw new Error('Install command failed: empty response');
         } else {
           const json = JSON.parse(responseData.json);
           const svc = Helm._findFirstService(json);
@@ -61,19 +63,15 @@ class Helm {
   }
 
   static _findFirstService(json) {
-    let name = null;
-    json.resources.forEach((element) => {
-      if (element.name === 'v1/Service') {
-        name = element.resources[0];
-      }
-    });
-    return name;
+    const service = json.resources.find(el => el.name === 'v1/Service');
+    return (service && service.resources[0]) || null;
   }
 
   static _convertToBool(obj) {
     if (obj == null) {
       return false;
     }
+
     // will match one and only one of the string 'true','1', or 'on' regardless
     // of capitalization and regardless of surrounding white-space.
     //

@@ -1,5 +1,4 @@
-const { Client } = require('kubernetes-client');
-const { config } = require('kubernetes-client');
+const { Client, config } = require('kubernetes-client');
 
 class PortService {
   constructor() {
@@ -71,7 +70,7 @@ class PortService {
           service = PortService._getRandomLoadBalancer(LoadBalancers);
         }
 
-        if (service == null) {
+        if (service === null) {
           // exit with error
           return { error: 'Could not allocate load balancer' };
         }
@@ -89,12 +88,7 @@ class PortService {
   }
 
   static _getLoadBalancerByIP(LoadBalancers, IP) {
-    LoadBalancers.forEach((lb) => {
-      if (lb.status.loadBalancer.ingress[0].ip === IP) {
-        return lb;
-      }
-    });
-    return null;
+    return LoadBalancers.filter(lb => lb.status.loadBalancer.ingress[0].ip === IP);
   }
 
   static _getRandomLoadBalancer(LoadBalancers) {

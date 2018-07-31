@@ -6,11 +6,13 @@ const router = express.Router();
 router.get('/setrule',
   async (req, res) => {
     // init params
-    const { serviceName } = req.query;
-    const { servicePort } = req.query;
-    const { specificlb } = req.query;
-    const { specificport } = req.query;
-    const { specificrelease } = req.query;
+    const {
+      serviceName,
+      servicePort,
+      specificlb,
+      specificport,
+      specificrelease,
+    } = req.query;
 
     const ingressManager = new IngressManager();
     await ingressManager.setRule(
