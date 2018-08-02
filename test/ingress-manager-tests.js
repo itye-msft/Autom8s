@@ -2,7 +2,7 @@ var assert = require('assert');
 var expect = require('chai').expect;
 var should = require('chai').should(); 
 var Helm = require('../autom8s/helm');
-var PortService = require('../autom8s/port-service');
+var PortsAllocator = require('../autom8s/ports-allocator');
 var IngressManager = require('../autom8s/ingress-manager');
 
 describe('Ctor', function () {
@@ -26,8 +26,8 @@ describe('set rule', function () {
           return hw;
         }
 
-        im._factoryGetPortService = function (){
-            var ps = new PortService();
+        im._factoryGetPortsAllocator = function (){
+            var ps = new PortsAllocator();
             ps.client = new ClientMock();
             ps.settings.IngressLabel = "ingress";
             return ps;
@@ -43,8 +43,8 @@ describe('set rule', function () {
     it('get ip port release', async function () {
         
         var im = new IngressManager();
-        im._factoryGetPortService = function (){
-            var ps = new PortService();
+        im._factoryGetPortsAllocator = function (){
+            var ps = new PortsAllocator();
             ps.client = new ClientMock();
             ps.settings.IngressLabel = "ingress";
             return ps;

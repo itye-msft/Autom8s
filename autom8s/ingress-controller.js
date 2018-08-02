@@ -3,6 +3,9 @@ const IngressManager = require('./ingress-manager');
 
 const router = express.Router();
 
+/**
+ * Sets an inbound rule in the ingress controller, to expose a service endpoint
+ */
 router.get('/setrule',
   async (req, res) => {
     // init params

@@ -1,22 +1,21 @@
 
 
-# Project Autom8s - Automation for K8S
+# Helm Charts automation using http endpoints
 ## Enabling applications in your Kubernetes cluster to programmatically install helm charts and expose them through a single public facing IP.
 
-The solution we propose consists of two services:
+The solution we propose consists of two parts, both as web servers:
 
-**Helm as a service**: let developers manage helm charts from inside the cluster, using a simple REST API.
+**Helm charts deployer**: let developers install/delete and upgrade helm charts from inside the cluster, using a simple REST API.
 
-**Expose as a service**: expose installed helm charts to the internet, via a single IP.
+**Ingres rule setter**: expose installed helm charts to the internet, via a single IP.
 
 ### When to use this solution
 * Automating deployments in the cluster.
-* Performing automation tests.
 * Programmatically managing the cluster from the code.
 
 ## Installation
 Installing autom8s takes 3 steps:
-
+1. install [tiller](https://docs.helm.sh/install/) 
 1. Grant tiller sufficient permissions to run helm inside the cluster, and install the Autom8s Chart.
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/itye-msft/kubernetes-dynamic-deployment-service/master/setup/tiller.yaml
@@ -167,8 +166,6 @@ Once all the applicable ingress controllers were found, the system will perform 
 2. Pick the controller specified in the HTTP request by setting the lbip parameter in the query string.
 
 For example: http://<automates-service-url>/getport?lbip=1.2.3.4
-
- 
 
 Finding a free port follows a simple pattern:
 

@@ -1,31 +1,23 @@
 var assert = require('assert');
 var expect = require('chai').expect;
 var should = require('chai').should(); 
-var PortService = require('../autom8s/port-service');
+var PortsAllocator = require('../autom8s/ports-allocator');
 
 describe('Ctor', function () {
     it('instance is created', function () {
-        var ps = new PortService();
+        var ps = new PortsAllocator();
         assert.notEqual(ps, null);
     });
 
     it('client is not null', function () {
-        var ps = new PortService();
+        var ps = new PortsAllocator();
         assert.notEqual(ps.client, null);
     });
 });
 
 describe('Client', function () {
-    it('getExistingPorts return 2 objects', async function () {
-        var ps = new PortService();
-        ps.client = new ClientMock();
-        ps.settings.IngressLabel = "ingress";
-        var res = await ps.getExistingPorts();
-        assert.equal(res.length, 1);
-    });
-
     it('getPort return ip and port', async function () {
-        var ps = new PortService();
+        var ps = new PortsAllocator();
         ps.client = new ClientMock();
         ps.settings.IngressLabel = "ingress";
         var res = await ps.getPort();

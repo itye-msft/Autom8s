@@ -3,7 +3,9 @@ const Helm = require('./helm');
 
 const router = express.Router();
 
-// Installs the requested chart
+/**
+ * Installs the requested chart into the Kubernetes cluster
+ */
 router.post('/install',
   async (req, res) => {
     const deployOptions = req.body;
@@ -25,6 +27,9 @@ router.post('/install',
       });
   });
 
+/**
+ * Deletes an already installed chart, identified by its release name
+ */
 router.post('/delete',
   async (req, res) => {
     const delOptions = req.body;
@@ -43,7 +48,9 @@ router.post('/delete',
       });
   });
 
-
+/**
+ * Upgrades an already installed chart, identified by its release name
+ */
 router.post('/upgrade',
   async (req, res) => {
     const deployOptions = req.body;
