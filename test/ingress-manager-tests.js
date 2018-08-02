@@ -15,23 +15,10 @@ describe('Ctor', function () {
 describe('set rule', function () {
     it('set rule success', async function () {
         
-        var im = new IngressManager();
-
-        im._factoryGetHelm = function () {
-          //mock
-          var hw = new Helm();
-          hw._executeHelm = async function(command, values = '') {
-              return { error:'', json:'{ data:1 }'};
-          }
-          return hw;
-        }
-
-        im._factoryGetPortsAllocator = function (){
-            var ps = new PortsAllocator();
-            ps.client = new ClientMock();
-            ps.settings.IngressLabel = "ingress";
-            return ps;
-        }
+        const helmMock = new HelmMock();
+        const portsAllocator = new PortsAllocator(new ClientMock());
+        portsAllocator.settings.IngressLabel = "ingress";
+        var im = new IngressManager(helmMock, portsAllocator);
         
         //act
         var res = await im.setRule("serviceNameA","123");
@@ -42,13 +29,10 @@ describe('set rule', function () {
 
     it('get ip port release', async function () {
         
-        var im = new IngressManager();
-        im._factoryGetPortsAllocator = function (){
-            var ps = new PortsAllocator();
-            ps.client = new ClientMock();
-            ps.settings.IngressLabel = "ingress";
-            return ps;
-        }
+        const helmMock = new HelmMock();
+        const portsAllocator = new PortsAllocator(new ClientMock());
+        portsAllocator.settings.IngressLabel = "ingress";
+        var im = new IngressManager(helmMock, portsAllocator);
         
         //act
         var res = await im._getIpPortRelease();

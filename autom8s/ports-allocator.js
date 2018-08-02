@@ -1,15 +1,17 @@
 const { Client, config } = require('kubernetes-client');
 
 class PortsAllocator {
-  constructor() {
+  constructor(kubeClient) {
     // setup an API client
-    let client;
-    try {
-      // assuming we are in the pod, try get the credentials from account service
-      client = new Client({ config: config.getInCluster() });
-    } catch (e) {
-      // we must be debugging locally, than pickup credentials from kube config
-      client = new Client({ config: config.fromKubeconfig() });
+    let client = kubeClient;
+    if (typeof client === 'undefined' || client === null) {
+      try {
+        // assuming we are in the pod, try get the credentials from account service
+        client = new Client({ config: config.getInCluster() });
+      } catch (e) {
+        // we must be debugging locally, than pickup credentials from kube config
+        client = new Client({ config: config.fromKubeconfig() });
+      }
     }
     this.specLoaded = false;
     this.client = client;
