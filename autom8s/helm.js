@@ -66,7 +66,7 @@ class Helm {
     Helm._verifyNotEmpty(releaseName, 'releaseName');
 
     const upgradeCommand = `upgrade ${releaseName} ${chartName}`;
-    console.log(`upgradeCommand command: ${upgradeCommand}`);
+    console.log(`upgrade command: ${upgradeCommand}`);
     return this._installOrUpgradeChart(upgradeCommand, deployOptions);
   }
 
@@ -97,6 +97,8 @@ class Helm {
   }
 
   async _executeHelm(command, values = '') {
+    console.log(`command: ${command}`);
+    console.log(`values: ${values}`);
     const { stdout, stderr } = await exec(`${helmBinaryLocation} ${command}${values}`);
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);

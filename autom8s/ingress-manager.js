@@ -45,7 +45,7 @@ class IngressManager {
     };
 
     // send the data to the helm service
-    console.log('Ingress Calling helm upgrade');
+    console.log(`Ingress Calling helm upgrade. given options: ${JSON.stringify(upgradeOptions)}`);
     const upgradeResponse = await this.helmClient.upgrade(upgradeOptions);
     console.log(`Ingress Helm upgrade repsonse: ${JSON.stringify(upgradeResponse)}`);
     return {

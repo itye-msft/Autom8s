@@ -1,16 +1,26 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const util = require('util');
 const request = require('request');
 
 const requestPostAsync = util.promisify(request.post);
-const requestGetAsync = util.promisify(request.get);
 
-const router = express.Router();
-const autom8sUrl = 'localhost';
+const autom8sUrl = process.env.SERVICE_URL;
 const Paths = {
   HelmInstall: `http://${autom8sUrl}:4000/install`,
   SetIngressRule: `http://${autom8sUrl}:4000/setrule`,
 };
+
+const app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.set('port', process.env.PORT || 4001);
+
+const server = app.listen(app.get('port'), () => {
+  console.log(`Server listening on port ${server.address().port}`);
+});
 
 async function InstallChart(chart) {
   try {
@@ -18,12 +28,15 @@ async function InstallChart(chart) {
     let installResponse = await requestPostAsync(
       Paths.HelmInstall, { form: { chartName: chart.name } },
     );
+
+    console.log(`install response: ${installResponse.body}`);
     installResponse = JSON.parse(installResponse.body);
 
     // create a rule to expose the new service expternally
-    let ingressResponse = await requestGetAsync(
+    console.log(`using serviceName: ${installResponse.serviceName} and servicePort: ${chart.servicePort}`);
+    let ingressResponse = await requestPostAsync(
       Paths.SetIngressRule,
-      { serviceName: installResponse.serviceName, servicePort: chart.servicePort },
+      { form: { serviceName: installResponse.serviceName, servicePort: chart.servicePort } },
     );
     ingressResponse = JSON.parse(ingressResponse.body);
 
@@ -38,11 +51,9 @@ async function InstallChart(chart) {
   }
 }
 
-router.get('/test',
+app.use('/test',
   async (req, res) => {
     const chart = { name: 'stable/rabbitmq', servicePort: 5672 };
     const installChartResult = await InstallChart(chart);
     res.send(installChartResult);
   });
-
-module.exports = router;

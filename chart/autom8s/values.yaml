@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: ityer/autom8s
+  repository: eladiwmicrosoft/autom8s
   tag: latest
   pullPolicy: Always
 

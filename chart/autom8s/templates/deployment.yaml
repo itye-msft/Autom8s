@@ -6,7 +6,7 @@ metadata:
 automountServiceAccountToken: true
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: Role
+kind: ClusterRole
 metadata:
   name: tiller-user
   namespace: kube-system
@@ -23,26 +23,18 @@ rules:
   - pods
   verbs:
   - list
-- apiGroups: ["extensions", "apps"]
-  resources: ["deployments"]
+- apiGroups: ["", "extensions", "apps"]
+  resources: ["deployments", "services"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-- apiGroups:
-  - ""
-  resources:
-  - services
-  verbs:
-  - create
-  - list
-  - get  
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: tiller-user-binding
   namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
+  kind: ClusterRole
   name: tiller-user
 subjects:
 - kind: ServiceAccount

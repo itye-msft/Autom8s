@@ -1,7 +1,7 @@
 var assert = require('assert');
 var expect = require('chai').expect;
 var should = require('chai').should(); 
-var Helm = require('../autom8s/helm');
+var HelmMock = require('./mocks/helm-mock');
 var PortsAllocator = require('../autom8s/ports-allocator');
 var IngressManager = require('../autom8s/ingress-manager');
 

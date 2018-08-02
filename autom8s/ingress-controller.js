@@ -6,7 +6,7 @@ const router = express.Router();
 /**
  * Sets an inbound rule in the ingress controller, to expose a service endpoint
  */
-router.get('/setrule',
+router.post('/setrule',
   async (req, res) => {
     // init params
     const {
@@ -15,7 +15,7 @@ router.get('/setrule',
       specificlb,
       specificport,
       specificrelease,
-    } = req.query;
+    } = req.body;
 
     const ingressManager = new IngressManager();
     await ingressManager.setRule(
