@@ -27,15 +27,22 @@ The solution we propose consists of two parts, both as web servers:
     
     helm init --service-account tiller
     ```
-2. Install the Autom8s chart
+2. Clone the repository
+  - [Build and push](https://docs.docker.com/docker-cloud/builds/push-images/) the image into a docker repository
+  ```bash
+  docker build -t username/autom8s .
+  docker push username/autom8s
+  ```
+  - Edit the [values.yaml](./chart/autom8s/values.yaml) file to point to the newly published image
+3. Install the Autom8s chart
 ```bash
-helm install   'https://raw.githubusercontent.com/itye-msft/Autom8s/master/chart/autom8s-0.1.0.tgz' --name autom8s --set rbac.create=true
+helm install chart/autom8s --name autom8s --set rbac.create=true
 ```
-3. Call autom8s and install `nginx-ingress-controller`, to expose other helm charts via a single public IP:
+4. Call autom8s and install `nginx-ingress-controller`, to expose other helm charts via a single public IP:
 ```bash
 curl -d '{"chartName":"stable/nginx-ingress", "releaseName":"myingress"}' -H "Content-Type: application/json" -X POST http://<autom8s-ip>:4000/install
 ```
-4. Label each ingress controller. This is required, since this is our way of telling the system, which IPs to use:
+5. Label each ingress controller. This is required, since this is our way of telling the system, which IPs to use:
 ```bash
 kubectl label service myingress appingress=ingress
 ```
