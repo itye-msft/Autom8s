@@ -19,23 +19,23 @@ spec:
         app: {{ template "autom8s.name" . }}
         release: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{ .Values.helmServiceAccount }}
+      serviceAccountName: {{ .Values.rbac.helmServiceAccount }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ required "registry name is required" .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 4002
               protocol: TCP
           env:
-          - name: LoadBalancerNamespace
-            value: {{ .Values.ingressNamespace }}
-          - name: PortMin
-            value: "{{ .Values.minPort }}"
-          - name: PortMax
-            value: "{{ .Values.maxPort }}"
-          - name: IngressLabel
-            value: {{ .Values.ingressLabel }}
+          - name: LOAD_BALANCER_NAMESPACE
+            value: {{ .Values.ingress.ingressNamespace }}
+          - name: PORT_MIN
+            value: "{{ .Values.ingress.minPort }}"
+          - name: PORT_MAX
+            value: "{{ .Values.ingress.maxPort }}"
+          - name: INGRESS_LABEL
+            value: {{ .Values.ingress.ingressLabel }}
           - name: TILLER_SERVICE_ACCOUNT
-            value: {{ .Values.tillerServiceAccount }}
+            value: {{ .Values.rbac.tillerServiceAccount }}

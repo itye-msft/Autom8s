@@ -18,10 +18,10 @@ class PortsAllocator {
 
     // gather settings to operate
     this.settings = {
-      LoadBalancerNamespace: process.env.LoadBalancerNamespace || 'default',
-      IngressLabel: process.env.IngressLabel || '',
-      PortMin: process.env.PortMin || '20000',
-      PortMax: process.env.PortMax || '30000',
+      LoadBalancerNamespace: process.env.LOAD_BALANCER_NAMESPACE || 'default',
+      IngressLabel: process.env.INGRESS_LABEL || '',
+      PortMin: process.env.PORT_MIN || '20000',
+      PortMax: process.env.PORT_MAX || '30000',
     };
   }
 

@@ -5,7 +5,9 @@
 replicaCount: 1
 
 image:
-  repository: username/autom8s
+  # uncomment and fill registry name
+  # registry: 
+  name: autom8s
   tag: latest
   pullPolicy: Always
 
@@ -14,13 +16,19 @@ service:
   port: 4000
 
 namespace: default
-ingressNamespace: default
-minPort: 20000
-maxPort: 30000
-ingresLabel: ingress
 
-helmServiceAccount: helm
-helmRole: tiller-user
-tillerServiceAccount: tiller
-tillerRoleBindingName: cluster-admin
-tillerNamespace: kube-system
+# for the ingress functionallity - the ingress is the controller which exposes the newly deployed service
+# Refer to the docs for more details
+ingress:
+  ingressNamespace: default
+  minPort: 20000
+  maxPort: 30000
+  ingressLabel: ingress
+
+# configuration for the rbac namespaces, service accounts, roles and binding names
+rbac:
+  helmServiceAccount: helm
+  helmRole: tiller-user
+  tillerServiceAccount: tiller
+  tillerRoleBindingName: tiller-user-binding
+  tillerNamespace: kube-system
