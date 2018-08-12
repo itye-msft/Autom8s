@@ -41,7 +41,7 @@ async function InstallChart(chart) {
     ingressResponse = JSON.parse(ingressResponse.body);
 
     if (ingressResponse.status === 'success') {
-      return `Your new service: ${ingressResponse.releaseName}, is publicly accessibly on ${ingressResponse.ip}:${ingressResponse.port}`;
+      return `Your new service: ${ingressResponse.releaseName}, is publicly accessible on ${ingressResponse.ip}:${ingressResponse.port}`;
     }
 
     return `failed: ${ingressResponse.reason}`;

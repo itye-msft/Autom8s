@@ -65,7 +65,9 @@ Now you have a working Autom8s API awaiting HTTP requests.
 
 If you used the default settings, the API will be accessible internally at: `http://autom8s.default.svc.cluster.local:4000`
 
-Here is a quick node.js snippet that makes use of the API to install RabbitMQ with default settings. Note: any chart will be suitable, RabbitMQ is just a specific example:
+Here is a quick node.js snippet that makes use of the API to install RabbitMQ with default settings.
+
+Note: any chart will be suitable, RabbitMQ is just a specific example:
 
 ```js
 let chart = { name: "stable/rabbitmq", servicePort: 5672 };
@@ -76,7 +78,7 @@ var installResponse = await requestPostAsync(Paths.HelmInstall, { form: { chartN
 // create a rule to expose the new service expternally
 var ingressResponse = await requestGetAsync(Paths.SetIngressRule, { serviceName: installResponse.serviceName, servicePort: chart.servicePort });
 
-return "Your new service: " + ingressResponse.releaseName + ", is publicly accessibly on " + ingressResponse.ip + ":" + ingressResponse.port;
+return `Your new service: ${ingressResponse.releaseName}, is publicly accessible on ${ingressResponse.ip}:${ingressResponse.port}`;
 ```
 
 For example, installig a chart from a private repository is done by sending the following json to the exposed endpoint:

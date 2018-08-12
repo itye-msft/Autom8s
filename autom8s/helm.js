@@ -21,10 +21,10 @@ class Helm {
     let installCommand = `json install ${chartName}`;
 
     // sanity
-    Helm._verifyNotEmpty(chartName, 'chartName');
+    Helm._validateNotEmpty(chartName, 'chartName');
 
     if (releaseName !== undefined && releaseName != null && releaseName !== '') {
-      console.log(`using a user chosen release name: ${releaseName}`);
+      console.log(`Installing specified release name: ${releaseName}`);
       installCommand = `${installCommand} --name ${releaseName.toLowerCase()}`;
     }
 
@@ -32,10 +32,15 @@ class Helm {
     return this._installOrUpgradeChart(installCommand, deployOptions)
       .then((responseData) => {
         if (responseData && responseData.error) {
-          throw new Error(`Install command failed: ${responseData.error}`);
+          const errLog = `Install command failed: ${responseData.error}`;
+          console.error(errLog);
+          throw new Error(errLog);
         } else if (!responseData) {
-          throw new Error('Install command failed: empty response');
+          const errLog = 'Install command failed: empty response';
+          console.error(errLog);
+          throw new Error(errLog);
         } else {
+          console.log('succesfully finished helm command');
           const json = JSON.parse(responseData.json);
           const svc = Helm._findFirstService(json);
           if (svc) {
@@ -45,14 +50,16 @@ class Helm {
             };
           }
 
-          throw new Error(`Install command returned unknown response: ${responseData.json}`);
+          const errLog = `Install command returned unknown response: ${responseData.json}`;
+          console.error(errLog);
+          throw new Error(errLog);
         }
       });
   }
 
   async delete(delOptions) {
     const { releaseName } = delOptions;
-    Helm._verifyNotEmpty(releaseName, 'releaseName');
+    Helm._validateNotEmpty(releaseName, 'releaseName');
 
     console.log(`deleting release: ${releaseName}`);
     return this._executeHelm(`delete ${releaseName}`);
@@ -62,24 +69,24 @@ class Helm {
     const chartName = deployOptions.chartName.toLowerCase();
     const releaseName = deployOptions.releaseName.toLowerCase();
 
-    Helm._verifyNotEmpty(chartName, 'chartName');
-    Helm._verifyNotEmpty(releaseName, 'releaseName');
+    Helm._validateNotEmpty(chartName, 'chartName');
+    Helm._validateNotEmpty(releaseName, 'releaseName');
 
     const upgradeCommand = `upgrade ${releaseName} ${chartName}`;
     console.log(`upgrade command: ${upgradeCommand}`);
     return this._installOrUpgradeChart(upgradeCommand, deployOptions);
   }
 
-  static _verifyNotEmpty(arg, argName) {
+  static _validateNotEmpty(arg, argName) {
     if (typeof arg === 'undefined' || arg === null || arg === '') {
-      const errorMsg = `${argName} is mandatory`;
+      const errorMsg = `${argName} is required`;
       console.error(errorMsg);
       throw new Error(errorMsg);
     }
   }
 
   static _findFirstService(json) {
-    const service = json.resources.find(el => el.name === 'v1/Service');
+    const service = json.resources.find(el => el.name.toLowerCase().includes('/service'));
     return (service && service.resources[0]) || null;
   }
 
