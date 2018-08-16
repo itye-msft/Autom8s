@@ -12,9 +12,6 @@
     "url": "git+https://github.com/itye-msft/Automation-for-K8S.git"
   },
   "author": "Microsoft",
-  "contributors": [
-    "itye-msft"
-  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/itye-msft/Automation-for-K8S/issues"
