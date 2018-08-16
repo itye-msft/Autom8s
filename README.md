@@ -8,7 +8,7 @@ The solution we propose consists of two parts, both as web servers:
 
 **Helm charts deployer**: let developers install, delete and upgrade helm charts from inside the cluster, using a simple REST API.
 
-**Ingres rule setter**: expose installed helm charts to the internet, via a single IP.
+**Ingress rule setter**: expose installed helm charts to the internet, via a single IP.
 
 ### When to use this solution
 
@@ -27,7 +27,7 @@ The solution we propose consists of two parts, both as web servers:
      Make sure to grant tiller sufficient permissions to run helm inside the cluster, and install the Autom8s Chart.
     The example below will configure helm and tiller to work with the chart's default values. Execute the following lines if using the default chart values:
     ```bash
-    kubectl apply -f https://raw.githubusercontent.com/itye-msft/kubernetes-dynamic-deployment-service/master/rbac-example/tiller.yaml
+    kubectl apply -f https://raw.githubusercontent.com/itye-msft/Automation-for-K8S/master/rbac-example/tiller.yaml
 
     helm init --service-account tiller
     ```
