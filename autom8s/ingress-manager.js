@@ -1,28 +1,53 @@
-const PortService = require('./port-service');
+const PortsAllocator = require('./ports-allocator');
 const Helm = require('./helm');
 
 class IngressManager {
-  async setRule(serviceName, servicePort, specificport, specificlb, specificrelease) {
-    const ipPortRelease = await this._getIpPortRelease(
-      specificport, specificlb, specificrelease,
+  constructor(helm, portsAllocator) {
+    if (typeof helm === 'undefined' || helm === null) {
+      this.helmClient = new Helm();
+    } else {
+      this.helmClient = helm;
+    }
+
+    if (typeof portsAllocator === 'undefined' || portsAllocator === null) {
+      this.portsAllocatorClient = new PortsAllocator();
+    } else {
+      this.portsAllocatorClient = portsAllocator;
+    }
+  }
+
+  async setRule(serviceName, servicePort, port, lb, release) {
+    let ipPortRelease;
+    // if user requested specific values, allow them
+    if (typeof lb !== 'undefined' && lb
+    && typeof port !== 'undefined' && port
+    && typeof release !== 'undefined' && release) {
+      ipPortRelease = { ip: lb, port, release };
+    }
+
+    ipPortRelease = await this._getIpPortRelease(
+      port, lb, release,
     );
+
     console.log(`Ingress port response: ${JSON.stringify(ipPortRelease)}`);
     // prepare data to post
     const tcp = `tcp.${ipPortRelease.port}`;
-    const v = {};
-    v[tcp] = `${serviceName}:${servicePort}`;
+    const optionalValues = {};
+    optionalValues[tcp] = `${serviceName}:${servicePort}`;
+
+    // To create a rule we look for the nginx-ingress release and add additional
+    // values to that release using the 'reuse' flag
     const upgradeOptions = {
       chartName: 'stable/nginx-ingress',
       reuseValue: true,
       releaseName: ipPortRelease.release,
-      values: v,
+      values: optionalValues,
     };
 
     // send the data to the helm service
-    const helm = this._factoryGetHelm();
-    console.log('Ingress Calling helm upgrade');
-    const upgradeResponse = await helm.upgrade(upgradeOptions);
-    console.log(`Ingress Helm upgrade repsonse:${JSON.stringify(upgradeResponse)}`);
+    console.log(`Ingress Calling helm upgrade. given options: ${JSON.stringify(upgradeOptions)}`);
+    const upgradeResponse = await this.helmClient.upgrade(upgradeOptions);
+    console.log(`Ingress Helm upgrade repsonse: ${JSON.stringify(upgradeResponse)}`);
     return {
       ip: ipPortRelease.ip,
       port: ipPortRelease.port,
@@ -30,30 +55,16 @@ class IngressManager {
     };
   }
 
-  async _getIpPortRelease(specificport, specificlb, specificrelease) {
-    // if specific port/ip/release were requested:
-    if (typeof specificport !== 'undefined' && specificport
-    && typeof specificlb !== 'undefined' && specificlb
-    && typeof specificrelease !== 'undefined' && specificrelease) {
-      return { ip: specificlb, port: specificport, release: specificrelease };
-    }
-
+  async _getIpPortRelease() {
     // get free port/ip/release
-    const ps = this._factoryGetPortService();
     console.log('Ingress Calling get port');
-    const data = await ps.getPort();
+    const data = await this.portsAllocatorClient.getPort();
     const ip = data.public_ip;
     const { port } = data;
     const { release } = data;
 
     return { ip, port, release };
   }
-
-  // Factory methods: comes handy for testing purposes, as we can inject
-  // mock behaviour
-  _factoryGetPortService() { return new PortService(); }
-
-  _factoryGetHelm() { return new Helm(); }
 }
 
 

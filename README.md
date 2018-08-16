@@ -1,72 +1,88 @@
 
+# Helm Charts installation through http endpoints
 
-# Project Autom8s - Automation for K8S
-## Enabling applications in your Kubernetes cluster to programmatically install helm charts and expose them through a single public facing IP.
+## Enabling applications in your Kubernetes cluster to programmatically install helm charts and expose them through a single public facing IP
 
-The solution we propose consists of two services:
+The solution exposes web endpoint which provides the Helm functionalities of Install, Delete and Upgrade charts, as well as automatically configure the ingress controller to expose them to the internet all within a single public IP.
+The solution we propose consists of two parts, both as web servers:
 
-**Helm as a service**: let developers manage helm charts from inside the cluster, using a simple REST API.
+**Helm charts deployer**: let developers install, delete and upgrade helm charts from inside the cluster, using a simple REST API.
 
-**Expose as a service**: expose installed helm charts to the internet, via a single IP.
+**Ingress rule setter**: expose installed helm charts to the internet, via a single IP.
 
 ### When to use this solution
+
 * Automating deployments in the cluster.
-* Performing automation tests.
 * Programmatically managing the cluster from the code.
 
-## Installation
-Installing autom8s takes 3 steps:
+### Requirements
 
-1. Grant tiller sufficient permissions to run helm inside the cluster, and install the Autom8s Chart.
-```bash
-kubectl apply -f https://raw.githubusercontent.com/itye-msft/kubernetes-dynamic-deployment-service/master/setup/tiller.yaml
-helm init --service-account tiller
-helm install 'https://raw.githubusercontent.com/itye-msft/Autom8s/master/chart/autom8s-0.1.0.tgz' --name autom8s --set rbac.create=true
-```
-2. Call autom8s and install `nginx-ingress-controller`, to expose other helm charts via a single public IP:
-```bash
-curl -d '{"chartName":"stable/nginx-ingress", "releaseName":"myingress"}' -H "Content-Type: application/json" -X POST http://<autom8s-ip>:4000/install
-```
-3. Label each ingress controller. This is required, since this is our way of telling the system, which IPs to use:
-```bash
-kubectl label service myingress appingress=ingress
-```
+* Kubernetes 1.9+ with RBAC enabled.
+* Helm
 
-Now you have a working Autom8s API awaiting HTTP requests. 
+### Installation
 
+1. Install [Helm](https://github.com/kubernetes/helm) with [RBAC](https://github.com/kubernetes/helm/blob/master/docs/rbac.md#tiller-and-role-based-access-control)
 
+     Make sure to grant tiller sufficient permissions to run helm inside the cluster, and install the Autom8s Chart.
+    The example below will configure helm and tiller to work with the chart's default values. Execute the following lines if using the default chart values:
+    ```bash
+    kubectl apply -f https://raw.githubusercontent.com/itye-msft/Automation-for-K8S/master/rbac-example/tiller.yaml
+
+    helm init --service-account tiller
+    ```
+2. Clone the repository
+    * [Build and push](https://docs.docker.com/docker-cloud/builds/push-images/) the image into a docker repository
+
+    ```bash
+    docker build -t registryname/autom8s .
+    docker push registryname/autom8s
+    ```
+
+    * Edit the [values.yaml](./chart/autom8s/values.yaml) file to point to the newly published image and registry
+
+3. Install the Autom8s chart
+
+    ```bash
+    helm install chart/autom8s --name autom8s --set rbac.create=true
+    ```
+
+4. Call autom8s and install `nginx-ingress-controller`, to expose other helm charts via a single public IP:
+
+    ```bash
+    curl -d '{"chartName":"stable/nginx-ingress", "releaseName":"myingress"}' -H "Content-Type: application/json" -X POST http://<autom8s-ip>:4000/install
+    ```
+
+5. Label each ingress controller. This is required, since this is our way of telling the system, which IPs to use:
+
+    ```bash
+    kubectl label service myingress appingress=ingress
+    ```
+
+Now you have a working Autom8s API awaiting HTTP requests.
 
 ## Using the API
+
 If you used the default settings, the API will be accessible internally at: `http://autom8s.default.svc.cluster.local:4000`
 
-Here is a quick node.js snippet that makes use of the API to install RabbitMQ with default settings:
+Here is a quick node.js snippet that makes use of the API to install RabbitMQ with default settings.
+
+Note: any chart will be suitable, RabbitMQ is just a specific example:
 
 ```js
 let chart = { name: "stable/rabbitmq", servicePort: 5672 };
 
 // perform helm install
-var installResponse = await requestPostAsync(Paths.HelmInstall, { form: { chartName: chart.name } });
+var installResponse = await requestPostAsync(Paths.HelmInstall, { form: { chartName: "" } });
 
 // create a rule to expose the new service expternally
 var ingressResponse = await requestGetAsync(Paths.SetIngressRule, { serviceName: installResponse.serviceName, servicePort: chart.servicePort });
 
-return "Your new service: " + ingressResponse.releaseName + ", is publicly accessibly on " + ingressResponse.ip + ":" + ingressResponse.port;
+return `Your new service: ${ingressResponse.releaseName}, is publicly accessible on ${ingressResponse.ip}:${ingressResponse.port}`;
 ```
 
-An example to install a chart with custom settings (same as using helm's `--set` flag):
-```json
-{
-  "chartName":"stable/rabbitmq",
-  "values": {
-       "rabbitmq.username" : "admin" ,
-       "rabbitmq.password" : "secretpassword",
-       "rabbitmq.erlangCookie": "secretcookie"
-    }
-}
-```
->`ReleaseName` optional, and if it's not set, helm will generate one for you. See the API documenation below for more details.
+For example, installig a chart from a private repository is done by sending the following json to the exposed endpoint:
 
-Installig a private chart is also simple:
 ```json
 {
   "chartName":"sampleApp",
@@ -75,102 +91,26 @@ Installig a private chart is also simple:
 }
 ```
 
+In most cases the deployed chart will be a private one, which makes sense to be deployed on demand, for example a service which adds support for a new format of requests. However, public charts are fully supported (remove the 'privateChartsRepo' key-value).
+
 ## API Documentation
-Here are the available endpoints of the API:
-### /install
-| Name | Http Action | Description | Paramaters type|
-| ---  | ----         | ----        | ---           |
-| install | POST | install a helm chart | json |
 
-**Paramaters**
+Check out the API documentation [here](./docs/api.md)
 
-| Name | Description | Optional|
-| ---  | ----         | ----        |
-| chartName | name of the chart | mandatory |
-| releaseName | set the release name. If not present, helm will generate one for you. | optional |
-| privateChartsRepo | a URL to your own custom repo. Credentials may be incorporated in the URL in the form of: `https://user:token@domain/git/repo/path` | optional |
-| values | a key-value object of values to set | optional |
----
-### /upgrade
-| Name | Http Action | Description | Paramaters type|
-| ---  | ----         | ----        | ---           |
-| upgrade | POST | upgrade a helm release | json |
+## How it works
 
-**Paramaters**
+Feel free to read the extended summary [here](./docs/deepdive.md)
 
-| Name | Description | Optional|
-| ---  | ----         | ----        |
-| chartName | name of the chart | mandatory |
-| releaseName | the release name to upgrade | mandatory |
-| reuseValue | should the upgrade override values or append | optional |
+## Contributing
 
----
-### /delete
-| Name | Http Action | Description | Paramaters type|
-| ---  | ----         | ----        | ---           |
-| upgrade | POST | delete a helm release | json |
+This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
-**Paramaters**
+When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
+a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
+provided by the bot. You will only need to do this once across all repos using our CLA.
 
-| Name | Description | Optional|
-| ---  | ----         | ----        |
-| releaseName | the release name to delete | mandatory |
-
----
-### /setrule
-| Name | Http Action | Description | Paramaters type|
-| ---  | ----         | ----        | ---           |
-| setrule | POST | create an ingress rule | json |
-
-**Paramaters**
-
-| Name | Description | Optional|
-| ---  | ----         | ----        |
-| serviceName | the name of the installed service to expose | mandatory |
-| servicePort | the internal port of the installed service to expose | mandatory |
-| specificlb | a specific IP to use. If not specified, a random load balancer IP will be selected | optional |
-| specificport | a specific port to use. If not specified, a random port will be selected | optional |
-| specificrelease | a specific load balancer release to use. If not specified, a random load balancer will be selected | optional |
-
----
-## Deep dive into the code
-### Helm as a service
-Our approach is to take Helm and run it within the cluster, as a RESTful endpoint. We have created a Node.js server which receives clients commands as json, prepares the relevant Helm command and runs it immediately.
-By leveraging Helm and running it as a containerized application within the cluster we were able to automate the process and gain easier control over the cluster with all the features of Helm such as packaging code and versioning of the deployment files.
-
-### Expose as a service
-When we publicly expose an app, the final result would be a public IP and Port endpoint.
-
-In order to have multiple apps deployed using a single IP, we initially thought to use [Traefik](https://traefik.io/) as an ingress controller, however, at the time of writing, Traefik supported only HTTP protocol, while IoT devices use a plethora of protocols, such as TCP, UDP, MQTT and more. Enter [Nginx Ingress Controller](https://hub.kubeapps.com/charts/stable/nginx-ingress). nginx allows customizing the protocols, it had an official helm chart, which really made the [setup](https://medium.com/cooking-with-azure/tcp-load-balancing-with-ingress-in-aks-702ac93f2246) and management super easy.
-
-After the app was installed, we had to find a simple way to choose a free external port. It appeared that kubernetes is not provisioning and managing ingress controller ports. Having no other solution, we implemented a simple port-allocator which finds an available port in the ingress controllers.
-
-### How the automation works
-It takes 2 steps:
-
-1. Get an available port, using Port-Manager.
-2. Configure the ingress controller, using Ingress-Manager.
-
-Ingress rules are configured in the ingress controller. There could be several ingress controllers in the cluster.
-
-The Port-Manager finds a free port on an Ingress Controller. If there are multiple Ingress Controllers, one of the ingress controller is selected by:
-
-1. Specifying a namespace where the ingress controllers were deployed. The namespace is set in an Environment Variable called LoadBalancerNamespace .
-2. Adding the appingress  label to each ingress controller you would like to use with the Port-Manager, for better granularity. The value of the label is set in an Environment variable called IngressLabel .
-
-Once all the applicable ingress controllers were found, the system will perform one of the followings:
-
-1. Pick a random controller and find a free port.
-
--or-
-
-2. Pick the controller specified in the HTTP request by setting the lbip parameter in the query string.
-
-For example: http://<automates-service-url>/getport?lbip=1.2.3.4
-
- 
-
-Finding a free port follows a simple pattern:
-
-1. Get all currently-in-use ports by making an API call.
-2. Iterate the desired port range to find a port not in use.
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
+contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.

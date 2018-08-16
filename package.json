@@ -9,18 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/itye-msft/Autom8s.git"
+    "url": "git+https://github.com/itye-msft/Automation-for-K8S.git"
   },
   "author": "Microsoft",
-  "contributors": [
-    "itye-msft",
-    "eladiw"
-  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/itye-msft/Autom8s/issues"
+    "url": "https://github.com/itye-msft/Automation-for-K8S/issues"
   },
-  "homepage": "https://github.com/itye-msft/Autom8s",
+  "homepage": "https://github.com/itye-msft/Automation-for-K8S",
   "dependencies": {
     "body-parser": "^1.18.3",
     "child_process": "^1.0.2",

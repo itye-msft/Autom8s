@@ -1,5 +1,5 @@
 ## Port service 
-FROM ityer/dotnet-node-alpine:net2.1-node9.11-alpine3.7
+FROM node:alpine
 
 ## Install Helm
 
@@ -17,7 +17,7 @@ RUN apk add --no-cache ca-certificates bash \
     && chmod +x /usr/local/bin/helm
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh
-RUN helm plugin install https://github.com/itye-msft/helm-json-plugin --version master
+RUN helm plugin install https://github.com/itye-msft/helm-json-output --version master
 
 # Create app directory
 WORKDIR /usr/src

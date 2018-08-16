@@ -1,8 +1,8 @@
 var assert = require('assert');
 var expect = require('chai').expect;
 var should = require('chai').should(); 
-var Helm = require('../autom8s/helm');
-var PortService = require('../autom8s/port-service');
+var HelmMock = require('./mocks/helm-mock');
+var PortsAllocator = require('../autom8s/ports-allocator');
 var IngressManager = require('../autom8s/ingress-manager');
 
 describe('Ctor', function () {
@@ -15,23 +15,10 @@ describe('Ctor', function () {
 describe('set rule', function () {
     it('set rule success', async function () {
         
-        var im = new IngressManager();
-
-        im._factoryGetHelm = function () {
-          //mock
-          var hw = new Helm();
-          hw._executeHelm = async function(command, values = '') {
-              return { error:'', json:'{ data:1 }'};
-          }
-          return hw;
-        }
-
-        im._factoryGetPortService = function (){
-            var ps = new PortService();
-            ps.client = new ClientMock();
-            ps.settings.IngressLabel = "ingress";
-            return ps;
-        }
+        const helmMock = new HelmMock();
+        const portsAllocator = new PortsAllocator(new ClientMock());
+        portsAllocator.settings.IngressLabel = "ingress";
+        var im = new IngressManager(helmMock, portsAllocator);
         
         //act
         var res = await im.setRule("serviceNameA","123");
@@ -42,13 +29,10 @@ describe('set rule', function () {
 
     it('get ip port release', async function () {
         
-        var im = new IngressManager();
-        im._factoryGetPortService = function (){
-            var ps = new PortService();
-            ps.client = new ClientMock();
-            ps.settings.IngressLabel = "ingress";
-            return ps;
-        }
+        const helmMock = new HelmMock();
+        const portsAllocator = new PortsAllocator(new ClientMock());
+        portsAllocator.settings.IngressLabel = "ingress";
+        var im = new IngressManager(helmMock, portsAllocator);
         
         //act
         var res = await im._getIpPortRelease();

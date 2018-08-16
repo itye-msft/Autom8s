@@ -10,28 +10,37 @@ const helmBinaryLocation = process.env.HELM_BINARY;
 // exec(helmBinaryLocation + ' init --service-account ' + process.env.TILLER_SERVICE_ACCOUNT);
 
 // Run once init client only (because tiller is already installed, see above)
-console.log(`initializing helm client. helm binary: ${helmBinaryLocation}`);
+console.log(`Initializing helm client. helm binary: ${helmBinaryLocation}`);
 exec(`${helmBinaryLocation} init --client-only`);
 
 class Helm {
   async install(deployOptions) {
-    console.log(`Installing new chart. deployOptions:${JSON.stringify(deployOptions)}`);
+    console.log(`Installing new chart. deployOptions: ${JSON.stringify(deployOptions)}`);
     const chartName = deployOptions.chartName.toLowerCase();
     const { releaseName } = deployOptions;
     let installCommand = `json install ${chartName}`;
 
+    // sanity
+    Helm._validateNotEmpty(chartName, 'chartName');
+
     if (releaseName !== undefined && releaseName != null && releaseName !== '') {
+      console.log(`Installing specified release name: ${releaseName}`);
       installCommand = `${installCommand} --name ${releaseName.toLowerCase()}`;
-      console.log(`Install command: ${installCommand}`);
     }
 
-    return this._innerInstallUpgrade(installCommand, deployOptions)
+    console.log(`Install command: ${installCommand}`);
+    return this._installOrUpgradeChart(installCommand, deployOptions)
       .then((responseData) => {
         if (responseData && responseData.error) {
-          throw new Error(`Install command failed: ${responseData.error}`);
+          const errLog = `Install command failed: ${responseData.error}`;
+          console.error(errLog);
+          throw new Error(errLog);
         } else if (!responseData) {
-          throw new Error('Install command failed: empty response');
+          const errLog = 'Install command failed: empty response';
+          console.error(errLog);
+          throw new Error(errLog);
         } else {
+          console.log('succesfully finished helm command');
           const json = JSON.parse(responseData.json);
           const svc = Helm._findFirstService(json);
           if (svc) {
@@ -41,29 +50,43 @@ class Helm {
             };
           }
 
-          throw new Error(`Install command returned unknown response: ${responseData.json}`);
+          const errLog = `Install command returned unknown response: ${responseData.json}`;
+          console.error(errLog);
+          throw new Error(errLog);
         }
       });
   }
 
   async delete(delOptions) {
     const { releaseName } = delOptions;
-    console.log(`deleting release: ${releaseName}`);
+    Helm._validateNotEmpty(releaseName, 'releaseName');
 
+    console.log(`deleting release: ${releaseName}`);
     return this._executeHelm(`delete ${releaseName}`);
   }
 
   async upgrade(deployOptions) {
     const chartName = deployOptions.chartName.toLowerCase();
     const releaseName = deployOptions.releaseName.toLowerCase();
-    const upgradeCommand = `upgrade ${releaseName} ${chartName}`;
-    console.log(`upgradeCommand command: ${upgradeCommand}`);
 
-    return this._innerInstallUpgrade(upgradeCommand, deployOptions);
+    Helm._validateNotEmpty(chartName, 'chartName');
+    Helm._validateNotEmpty(releaseName, 'releaseName');
+
+    const upgradeCommand = `upgrade ${releaseName} ${chartName}`;
+    console.log(`upgrade command: ${upgradeCommand}`);
+    return this._installOrUpgradeChart(upgradeCommand, deployOptions);
+  }
+
+  static _validateNotEmpty(arg, argName) {
+    if (typeof arg === 'undefined' || arg === null || arg === '') {
+      const errorMsg = `${argName} is required`;
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
   }
 
   static _findFirstService(json) {
-    const service = json.resources.find(el => el.name === 'v1/Service');
+    const service = json.resources.find(el => el.name.toLowerCase().includes('/service'));
     return (service && service.resources[0]) || null;
   }
 
@@ -81,6 +104,8 @@ class Helm {
   }
 
   async _executeHelm(command, values = '') {
+    console.log(`command: ${command}`);
+    console.log(`values: ${values}`);
     const { stdout, stderr } = await exec(`${helmBinaryLocation} ${command}${values}`);
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);
@@ -101,7 +126,7 @@ class Helm {
     return configStr;
   }
 
-  async _innerInstallUpgrade(command, deployOptions) {
+  async _installOrUpgradeChart(command, deployOptions) {
     let updatedCmd = command;
     const chartName = deployOptions.chartName.toLowerCase();
 

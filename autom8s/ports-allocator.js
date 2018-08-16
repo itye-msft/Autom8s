@@ -1,52 +1,39 @@
 const { Client, config } = require('kubernetes-client');
 
-class PortService {
-  constructor() {
+class PortsAllocator {
+  constructor(kubeClient) {
     // setup an API client
-    let client;
-    try {
-      // assuming we are in the pod, try get the credentials from account service
-      client = new Client({ config: config.getInCluster() });
-    } catch (e) {
-      // we must be debugging locally, than pickup credentials from kube config
-      client = new Client({ config: config.fromKubeconfig() });
+    let client = kubeClient;
+    if (typeof client === 'undefined' || client === null) {
+      try {
+        // assuming we are in the pod, try get the credentials from account service
+        client = new Client({ config: config.getInCluster() });
+      } catch (e) {
+        // we must be debugging locally, than pickup credentials from kube config
+        client = new Client({ config: config.fromKubeconfig() });
+      }
     }
     this.specLoaded = false;
     this.client = client;
 
     // gather settings to operate
     this.settings = {
-      LoadBalancerNamespace: process.env.LoadBalancerNamespace || 'default',
-      IngressLabel: process.env.IngressLabel || '',
-      PortMin: process.env.PortMin || '20000',
-      PortMax: process.env.PortMax || '30000',
+      LoadBalancerNamespace: process.env.LOAD_BALANCER_NAMESPACE || 'default',
+      IngressLabel: process.env.INGRESS_LABEL || '',
+      PortMin: process.env.PORT_MIN || '20000',
+      PortMax: process.env.PORT_MAX || '30000',
     };
-  }
-
-  async getExistingPorts() {
-    if (!this.specLoaded) {
-      await this.client.loadSpec();
-      this.specLoaded = true;
-    }
-    console.log('Getting existing ports...');
-    return this.client.api.v1.namespaces(this.settings.LoadBalancerNamespace).services.get()
-      .then((services) => {
-        // select only load balancers
-        const LoadBalancers = this._getLoadBalancersByLabel(services);
-        const list = PortService._listPorts(LoadBalancers);
-        console.log(`Got ports: ${list}`);
-        return list;
-      });
   }
 
   async getPort(lbip) {
     if (!this.specLoaded) {
+      console.log('Loading spec');
       await this.client.loadSpec();
       this.specLoaded = true;
     }
 
     // make an API call for all services in the given namespace
-    var self = this;
+    const self = this;
     console.log('Getting port');
     return this.client.api.v1.namespaces(this.settings.LoadBalancerNamespace).services.get()
       .then(function (services) {
@@ -63,11 +50,11 @@ class PortService {
 
         // If a specific LoadBlanacer was requested by IP
         if (lbip !== undefined && lbip !== '') {
-          service = PortService._getLoadBalancerByIP(LoadBalancers, lbip);
+          service = PortsAllocator._getLoadBalancerByIP(LoadBalancers, lbip);
         } else {
           // Else, In order to allocate a free port evenly from the load balancers,
           // select a random one.
-          service = PortService._getRandomLoadBalancer(LoadBalancers);
+          service = PortsAllocator._getRandomLoadBalancer(LoadBalancers);
         }
 
         if (service === null) {
@@ -121,7 +108,7 @@ class PortService {
       if (service.spec.type === 'LoadBalancer') {
         // match to label if applicable
         if (this.settings.IngressLabel != null && this.settings.IngressLabel !== '') {
-          for (var key in service.metadata.labels) {
+          for (const key in service.metadata.labels) {
             // we are looking for a pre-defined label call appingress,
             // having a value setup in env variable
             if (key === 'appingress' && service.metadata.labels[key] === this.settings.IngressLabel) {
@@ -156,4 +143,4 @@ class PortService {
   }
 }
 
-module.exports = PortService;
+module.exports = PortsAllocator;
